@@ -159,40 +159,19 @@ size_t plMTMemAmnt(plmt_t* mt, plmtaction_t action, size_t size){
 }
 
 /* malloc() wrapper that interfaces with the memory allocation tracker */
-memptr_t plMTAlloc(plmt_t* mt, size_t size){
+uint64_t plMTAlloc(plmt_t* mt, size_t size){
 	memptr_t tempPtr;
 
 	if(mt == NULL || mt->usedMemory + size > mt->maxMemory || (tempPtr = malloc(size)) == NULL)
-		return NULL;
-
-	plMTManage(mt, PLMT_ADDPTR, tempPtr, size);
-	return tempPtr;
-}
-
-/* plMTAlloc() wrapper that mimics BSD's emalloc behavior */
-memptr_t plMTAllocE(plmt_t* mt, size_t size){
-	memptr_t tempPtr = plMTAlloc(mt, size);
-
-	if(tempPtr == NULL)
 		plPanic("plMTAllocE: Failed to allocate memory", false, false);
-
-	return tempPtr;
-}
-
-/* calloc() wrapper that interfaces with the memory allocation tracker */
-memptr_t plMTCalloc(plmt_t* mt, size_t amount, size_t size){
-	memptr_t tempPtr;
-
-	if(mt == NULL|| mt->usedMemory + size > mt->maxMemory || (tempPtr = calloc(amount, size)) == NULL)
-		return NULL;
 
 	plMTManage(mt, PLMT_ADDPTR, tempPtr, size);
 	return tempPtr;
 }
 
 /* realloc() wrapper that interfaces with the memory allocation tracker */
-memptr_t plMTRealloc(plmt_t* mt, memptr_t pointer, size_t size){
-	memptr_t tempPtr = pointer;
+uint64_t plMTRealloc(plmt_t* mt, memptr_t* pointer, size_t size){
+	memptr_t tempPtr = *pointer;
 
 	if(mt == NULL || mt->usedMemory + size > mt->maxMemory)
 		return NULL;
