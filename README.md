@@ -9,7 +9,20 @@ It is a heavily modified fork of pl32lib-ng release 1.06
 
 # Build instructions
 
-Currently, it imports the old pl32lib-ng build system, but I might rewrite it.
+Currently, it imports the old POSIX shell-based pl32lib-ng build system, but I
+may bring back the Meson build system files.
+
+To configure the install path and the system to target, run the following:
+```sh
+./configure
+```
+(To see all of the options you can change, run `./configure --help`).
+
+To compile and install the project, run the following:
+```sh
+./compile build
+./compile install     # You may need to run this as superuser
+```
 
 # Contributions
 
