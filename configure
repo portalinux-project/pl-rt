@@ -1,7 +1,7 @@
 #!/bin/sh
 CC="cc"
 # Always enabled and cannot be disabled. If your code depends on these features it's either C89 or you have a massive skill issue
-CFLAGS="-std=c99 -Werror=implicit-function-declaration -Werror=implicit-int"
+CFLAGS="-std=c11 -Werror=implicit-function-declaration -Werror=implicit-int"
 
 AR="ar"
 RANLIB="ranlib"

@@ -1,13 +1,14 @@
-/**************************************\
+/**********************************************************\
  pl-rt, v0.01
  (c) 2023 pocketlinux32, Under MPL v2.0
- plrt-error.h: Error handling module
-\**************************************/
+ plrt-types.h: Types header and Error handler module header
+\**********************************************************/
 
 #pragma once
 #ifndef __cplusplus
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #endif
 
 #define PLRT_VERSION "0.01"
@@ -26,11 +27,7 @@ typedef struct plptr {
 
 typedef enum plrtret {
 	PLRT_ERROR = ((uint64_t)1 << UINT_SHIFT_LIMIT),
-
-	PLRT_MEMORY = ((uint64_t)1 << (UINT_SHIFT_LIMIT - 1)),
-	PLRT_IO = ((uint64_t)1 << (UINT_SHIFT_LIMIT - 2)),
-	PLRT_STRING = ((uint64_t)1 << (UINT_SHIFT_LIMIT - 3)),
-	PLRT_ERRNO = ((uint64_t)1 << (UINT_SHIFT_LIMIT - 4)),
+	PLRT_ERRNO = ((uint64_t)1 << (UINT_SHIFT_LIMIT - 1)),
 
 	PLRT_OOM = 1,
 	PLRT_FAILED_ALLOC = 2,
@@ -46,3 +43,6 @@ typedef enum plrtret {
 	PLRT_NOT_PLCHAR = 10,
 	PLRT_NOT_COMPRESSED = 11
 } plrtret_t;
+
+void plRTErrorString(plptr_t* buffer, plrtret_t errCode);
+void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug);

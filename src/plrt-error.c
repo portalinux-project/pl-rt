@@ -1,15 +1,16 @@
 #include <plrt-types.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
-void plRTErrString(plptr_t* buffer, plrtret_t errCode){
-	if(buffer == NULL || buffer->pointer == NULL || buffer->size == 0 || errCode & ~PLRT_ERROR == 0)
+void plRTErrorString(plptr_t* buffer, plrtret_t errCode){
+	if(buffer == NULL || buffer->pointer == NULL || buffer->size == 0 || errCode & PLRT_ERROR == 0)
 		return;
 
-	plrtret_t actualErrorCode = errorCode & (PLRT_ERROR | PLRT_MEMORY | PLRT_IO | PLRT_STRING | PLRT_ERRNO);
+	plrtret_t actualErrorCode = errCode & ~(PLRT_ERROR | PLRT_ERRNO);
 
-	if(errCode & ~PLRT_ERRNO != 0){
+	if(errCode & PLRT_ERRNO != 0){
 		char* holderPtr = strerror(actualErrorCode);
 		size_t sizeOfStr = strlen(holderPtr) + 1;
 		if(sizeOfStr > buffer->size)
@@ -52,6 +53,9 @@ void plRTErrString(plptr_t* buffer, plrtret_t errCode){
 			case PLRT_NOT_COMPRESSED:
 				holderPtr = "String is a plChar String";
 				break;
+			default:
+				holderPtr = "Unknown/Application-specific Error";
+				break;
 		}
 
 		if(strlen(holderPtr) + 1 > buffer->size)
@@ -60,4 +64,19 @@ void plRTErrString(plptr_t* buffer, plrtret_t errCode){
 		strcpy(buffer->pointer, holderPtr);
 		buffer->size = strlen(holderPtr);
 	}
+}
+
+void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug){
+	char buffer[512];
+
+	plptr_t holderStr = {
+		.pointer = buffer,
+		.size = 512
+	};
+
+	plRTErrorString(&holderStr, errCode);
+	fprintf(stderr, "* Runtime Panic at %s: %s\n", msg, buffer);
+	if(isDeveloperBug)
+		fputs("* If you're a user getting this error, this is a bug. Please report to the developers or maintainers of this project", stderr);
+	abort();
 }
