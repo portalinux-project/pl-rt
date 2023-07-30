@@ -23,22 +23,6 @@ struct plmt {
 	size_t maxMemory;
 };
 
-/* Prints an error and aborts the program. Within plrt-memory, it's used whenever malloc fails */
-void plPanic(char* msg, bool usePerror, bool developerBug){
-	fputs("* Panic at function ", stderr);
-	if(usePerror){
-		perror(msg);
-	}else{
-		fputs(msg, stderr);
-		fputs("\n", stderr);
-	}
-
-	if(developerBug)
-		fputs("* If you're seeing this message, this is a bug. Please report this error to the project maintainers\n", stderr);
-
-	abort();
-}
-
 /* Creates and initializes a memory allocation tracker */
 plmt_t* plMTInit(size_t maxMemoryInit){
 	plmt_t* returnMT = malloc(sizeof(plmt_t));
@@ -48,7 +32,7 @@ plmt_t* plMTInit(size_t maxMemoryInit){
 	returnMT->usedMemory = 0;
 
 	if(returnMT == NULL || returnMT->ptrList == NULL)
-		plPanic("plMTInit: Failed to allocate memory", false, false);
+		plRTPanic("plMTInit", PLRT_ERROR | PLRT_OOM, false);
 
 	if(!maxMemoryInit){
 		returnMT->maxMemory = 128 * 1024 * 1024;
@@ -91,7 +75,7 @@ int plMTManage(plmt_t* mt, plmtiaction_t mode, memptr_t ptr, size_t size){
 				memptr_t tempPtr = realloc(mt->ptrList, (mt->listAmnt + 1) * sizeof(plptr_t));
 
 				if(tempPtr == NULL)
-					plPanic("plMTManage: Failed to resize array", false, false);
+					plRTPanic("plMTManage", PLRT_ERROR | PLRT_OOM, false);
 
 				mt->ptrList = tempPtr;
 				mt->allocListAmnt++;
@@ -129,7 +113,7 @@ int plMTManage(plmt_t* mt, plmtiaction_t mode, memptr_t ptr, size_t size){
 
 			memptr_t tempPtr = realloc(*(memptr_t*)ptr, size);
 			if(tempPtr == NULL)
-				plPanic("plMTManage: Couldn't reallocate memory", false, false);
+				plRTPanic("plMTManage", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
 			mt->ptrList[reallocResult].pointer = tempPtr;
 			mt->usedMemory += (int)(size - mt->ptrList[reallocResult].size);
@@ -159,19 +143,23 @@ size_t plMTMemAmnt(plmt_t* mt, plmtaction_t action, size_t size){
 }
 
 /* malloc() wrapper that interfaces with the memory allocation tracker */
-uint64_t plMTAlloc(plmt_t* mt, size_t size){
+memptr_t plMTAlloc(plmt_t* mt, size_t size){
 	memptr_t tempPtr;
 
-	if(mt == NULL || mt->usedMemory + size > mt->maxMemory || (tempPtr = malloc(size)) == NULL)
-		plPanic("plMTAllocE: Failed to allocate memory", false, false);
+	if(mt == NULL)
+		plRTPanic("plMTAlloc", PLRT_ERROR | PLRT_NULL_PTR, false);
+	if(mt->usedMemory + size > mt->maxMemory)
+		plRTPanic("plMTAlloc", PLRT_ERROR | PLRT_OOM, false);
+	if((tempPtr = malloc(size)) == NULL)
+		plRTPanic("plMTAlloc", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
 	plMTManage(mt, PLMT_ADDPTR, tempPtr, size);
 	return tempPtr;
 }
 
 /* realloc() wrapper that interfaces with the memory allocation tracker */
-uint64_t plMTRealloc(plmt_t* mt, memptr_t* pointer, size_t size){
-	memptr_t tempPtr = *pointer;
+memptr_t plMTRealloc(plmt_t* mt, memptr_t pointer, size_t size){
+	memptr_t* tempPtr = &pointer;
 
 	if(mt == NULL || mt->usedMemory + size > mt->maxMemory)
 		return NULL;
