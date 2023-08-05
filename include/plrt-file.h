@@ -1,5 +1,5 @@
 /********************************************\
- pl-rt, v0.01
+ pl-rt, v0.03
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-file.h: File management module header
 \********************************************/
@@ -24,5 +24,3 @@ int plFGets(plstring_t string, plfile_t* stream);
 
 int plFSeek(plfile_t* stream, long int offset, int whence);
 size_t plFTell(plfile_t* stream);
-
-int plFPToFile(string_t filename, plfile_t* stream);

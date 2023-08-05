@@ -4,4 +4,5 @@
  plrt.h: Base API header
 \**************************************/
 
+#include <plrt-types.h>
 #include <plrt-memory.h>

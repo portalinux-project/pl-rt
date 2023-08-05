@@ -1,5 +1,5 @@
 /***************************************************\
- pl-rt, v0.01
+ pl-rt, v0.03
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-memory.h: Safe memory management module header
 \***************************************************/
