@@ -1,40 +1,41 @@
 /****************************************************\
- pl32lib-ng, v1.05
- (c) 2022 pocketlinux32, Under MPL v2.0
- pl32-file.c: File management module
+ pl-rt, v0.04
+ (c) 2023 pocketlinux32, Under MPL v2.0
+ plrt-file.c: File management module
 \****************************************************/
-#include <pl32-file.h>
+#include <plrt-file.h>
+#include <errno.h>
 
 struct plfile {
 	FILE* fileptr; /* File pointer for actual files */
 	byte_t* strbuf; /* String pointer for stringstream */
 	size_t seekbyte; /* Byte offset from the beginning of buffer */
 	size_t bufsize; /* Buffer size */
-	plmt_t* mtptr; /* pointer to MT (see pl32-memory.h) */
+	plmt_t* mtptr; /* pointer to Memory Tracker (see plrt-memory.h) */
 };
 
 /* Opens a file stream. If filename is NULL, a file-in-memory is returned */
-plfile_t* plFOpen(string_t filename, string_t mode, plmt_t* mt){
+plfile_t* plFOpen(char* filename, char* mode, plmt_t* mt){
 	if(mt == NULL)
-		plPanic("plFOpen: Memory tracker was set to NULL", false, true);
+		plRTPanic("plFOpen", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	plfile_t* returnStruct = plMTAllocE(mt, sizeof(plfile_t));
+	plfile_t* returnStruct = plMTAlloc(mt, sizeof(plfile_t));
 
 	/* If no filename is given, set up a file in memory */
 	if(filename == NULL){
 		returnStruct->fileptr = NULL;
-		returnStruct->strbuf = plMTAllocE(mt, 4098);
-		returnStruct->bufsize = 4098;
+		returnStruct->strbuf = plMTAlloc(mt, 4096);
+		returnStruct->bufsize = 4096;
 	}else{
 		if(mode == NULL)
-			plPanic("plFOpen: File mode was set to NULL", false, true);
+			plRTPanic("plFOpen", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 		returnStruct->fileptr = fopen(filename, mode);
 		returnStruct->bufsize = 0;
 		returnStruct->strbuf = NULL;
 
 		if(returnStruct->fileptr == NULL){
-			plPanic("plFOpen", true, false);
+			plRTPanic("plFOpen", PLRT_ERROR | PLRT_ERRNO | errno, false);
 		}
 	}
 
@@ -46,7 +47,7 @@ plfile_t* plFOpen(string_t filename, string_t mode, plmt_t* mt){
 }
 
 /* Converts a FILE pointer into a plfile_t pointer */
-plfile_t* plFToP(FILE* pointer, string_t mode, plmt_t* mt){
+plfile_t* plFToP(FILE* pointer, plmt_t* mt){
 	if(pointer == NULL)
 		return NULL;
 
@@ -74,48 +75,40 @@ int plFClose(plfile_t* ptr){
 }
 
 /* Reads size * nmemb amount of bytes from the file stream */
-size_t plFRead(void* ptr, size_t size, size_t nmemb, plfile_t* stream){
-	if(stream == NULL)
-		return 0;
+size_t plFRead(plptr_t ptr, plfile_t* stream){
+	if(stream == NULL || ptr.pointer == NULL)
+		plRTPanic("plFRead", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	if(stream->fileptr == NULL){
-		int elementAmnt = 1;
-		while(size * elementAmnt < stream->bufsize - stream->seekbyte && elementAmnt < nmemb){
-			elementAmnt++;
-		}
-		elementAmnt--;
-
-		if(elementAmnt == 0){
+		if(ptr.size > stream->bufsize - stream->seekbyte)
 			return 0;
-		}
 
-		memcpy(ptr, stream->strbuf + stream->seekbyte, size * elementAmnt);
-		stream->seekbyte += size * elementAmnt;
-		return size * elementAmnt;
+		memcpy(ptr.pointer, stream->strbuf + stream->seekbyte, ptr.size);
+		stream->seekbyte += ptr.size;
+		return ptr.size;
 	}else{
-		return fread(ptr, size, nmemb, stream->fileptr);
+		return fread(ptr.pointer, ptr.size, 1, stream->fileptr);
 	}
 }
 
 /* Writes size * nmemb amount of bytes from the file stream */
-size_t plFWrite(void* ptr, size_t size, size_t nmemb, plfile_t* stream){
-	if(stream == NULL)
-		return 0;
+size_t plFWrite(plptr_t ptr, plfile_t* stream){
+	if(stream == NULL || ptr.pointer == NULL)
+		plRTPanic("plFWrite", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	if(stream->fileptr == NULL){
-		if(size * nmemb > stream->bufsize - stream->seekbyte){
-			void* tempPtr = plMTRealloc(stream->mtptr, stream->strbuf, stream->bufsize + size * nmemb);
-			if(!tempPtr){
+		if(ptr.size > stream->bufsize - stream->seekbyte){
+			void* tempPtr = plMTRealloc(stream->mtptr, stream->strbuf, stream->bufsize + ptr.size);
+			if(tempPtr == NULL)
 				return 0;
-			}
 
 			stream->strbuf = tempPtr;
 		}
-		memcpy(stream->strbuf + stream->seekbyte, ptr, size * nmemb);
-		stream->seekbyte += size * nmemb;
-		return size * nmemb;
+		memcpy(stream->strbuf + stream->seekbyte, ptr.pointer, ptr.size);
+		stream->seekbyte += ptr.size;
+		return ptr.size;
 	}else{
-		return fwrite(ptr, size, nmemb, stream->fileptr);
+		return fwrite(ptr.pointer, ptr.size, 1, stream->fileptr);
 	}
 }
 
@@ -159,52 +152,54 @@ int plFGetC(plfile_t* stream){
 }
 
 /* Puts a string into the file stream */
-int plFPuts(string_t string, plfile_t* stream){
-	if(stream == NULL)
-		return 0;
+int plFPuts(plstring_t* string, plfile_t* stream){
+	if(stream == NULL || string == NULL || string->data.pointer == NULL)
+		plRTPanic("plFPuts", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	if(stream->fileptr == NULL){
-		if(plFWrite(string, 1, strlen(string)+1, stream))
+		if(plFWrite(string->data, stream))
 			return 0;
 
 		return 1;
 	}else{
-		return fputs(string, stream->fileptr);
+		return fputs(string->data.pointer, stream->fileptr);
 	}
 }
 
 /* Gets a string from the file stream */
-string_t plFGets(string_t string, int num, plfile_t* stream){
-	if(stream == NULL)
-		return NULL;
+int plFGets(plstring_t* string, plfile_t* stream){
+	if(stream == NULL || string == NULL || string->data.pointer == NULL)
+		plRTPanic("plFGets", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	if(stream->fileptr == NULL){
-		byte_t* endMark = (byte_t*)strchr((string_t)stream->strbuf + stream->seekbyte, '\n');
+		byte_t* endMark = (byte_t*)strchr((char*)stream->strbuf + stream->seekbyte, '\n');
 		unsigned int writeNum = 0;
 		if(endMark == NULL)
-			endMark = (byte_t*)strchr((string_t)stream->strbuf + stream->seekbyte, '\0');
+			endMark = (byte_t*)strchr((char*)stream->strbuf + stream->seekbyte, '\0');
 
 		writeNum = endMark - (stream->strbuf + stream->seekbyte);
 
-		if(writeNum >= num)
-			writeNum = num - 1;
+		if(writeNum >= string->data.size)
+			writeNum = string->data.size - 1;
 
 		if(writeNum == 0)
-			return NULL;
+			return 1;
 
-		memcpy(string, stream->strbuf + stream->seekbyte, writeNum);
-		string[writeNum] = '\n';
+		memcpy(string->data.pointer, stream->strbuf + stream->seekbyte, writeNum);
+		((char*)string->data.pointer)[writeNum] = '\n';
 
 		if(stream->seekbyte + writeNum + 1 > stream->bufsize){
 			stream->seekbyte = stream->bufsize - 1;
 		}else{
 			stream->seekbyte += (writeNum + 1);
 		}
-
-		return string;
 	}else{
-		return fgets(string, num, stream->fileptr);
+		memptr_t tmpVar = fgets(string->data.pointer, string->data.size, stream->fileptr);
+		if(tmpVar == NULL)
+			return 1;
 	}
+
+	return 0;
 }
 
 /* Moves the seek position offset amount of bytes relative from whence */
@@ -256,34 +251,4 @@ size_t plFTell(plfile_t* stream){
 		fflush(stream->fileptr);
 		return ftell(stream->fileptr);
 	}
-}
-
-/* Converts a memory buffer into a physical file */
-int plFPToFile(string_t filename, plfile_t* stream){
-	if(stream == NULL || filename == NULL || stream->strbuf == NULL)
-		plPanic("plFPToFile: Stream, filename and/or byte buffer is NULL", false, true);
-
-	FILE* realFile = fopen(filename, "w");
-	if(realFile == NULL)
-		plPanic("plFPToFile", true, false);
-
-	int retVar = fputs((string_t)stream->strbuf, realFile);
-	fclose(realFile);
-	return retVar;
-}
-
-/* Concatenates two files */
-void plFCat(plfile_t* dest, plfile_t* src, int destWhence, int srcWhence, bool closeSrc){
-	if(dest == NULL || src == NULL)
-		plPanic("plFCat: Destination and/or source stream is NULL", false, true);
-
-	plFSeek(dest, 0, destWhence);
-	plFSeek(src, 0, srcWhence);
-	byte_t ch;
-
-	while((ch = plFGetC(src)) != '\0')
-		plFPutC(ch, dest);
-
-	if(closeSrc)
-		plFClose(src);
 }
