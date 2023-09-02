@@ -1,5 +1,5 @@
 /********************************************\
- pl-rt, v0.03
+ pl-rt, v0.04
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-file.h: File management module header
 \********************************************/

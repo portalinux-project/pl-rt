@@ -1,5 +1,5 @@
 /**********************************************\
- pl-rt, v0.03
+ pl-rt, v0.04
  (c) 2022-2023 pocketlinux32, Under MPL v2.0
  plrt-string.h: UTF-8 String ops module header
 \**********************************************/
