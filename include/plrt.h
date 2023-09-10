@@ -4,11 +4,8 @@
  plrt.h: Base API header
 \**************************************/
 
-#define PLRT_VERSION "0.03"
-#define PLRT_MAJOR 0
-#define PLRT_MINOR 3
-
 #include <plrt-types.h>
 #include <plrt-memory.h>
 #include <plrt-string.h>
 #include <plrt-file.h>
+#include <plrt-token.h>

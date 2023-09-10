@@ -1,16 +1,9 @@
 /**********************************************\
- pl-rt, v0.03
+ pl-rt, v0.04
  (c) 2022-2023 pocketlinux32, Under MPL v2.0
  plrt-string.c: UTF-8 String ops module header
 \**********************************************/
 #include <plrt-string.h>
-
-bool isRTStrNull(plstring_t* string){
-	if(string == NULL || string->data.pointer == NULL)
-		return true;
-
-	return false;
-}
 
 size_t getCharSize(plchar_t chr){
 	size_t size = 4;
@@ -47,7 +40,7 @@ plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt){
 }
 
 void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
-	if(mt == NULL || isRTStrNull(plCharStr))
+	if(mt == NULL || plCharStr == NULL || plCharStr->data.pointer == NULL)
 		plRTPanic("plRTStrCompress", PLRT_ERROR | PLRT_NULL_PTR, true);
 	if(!plCharStr->isplChar)
 		plRTPanic("plRTStrCompress", PLRT_ERROR | PLRT_NOT_PLCHAR, true);
@@ -70,7 +63,7 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 		offset += endOfUtfChr;
 	}
 
-	void* resizedPtr = plMTRealloc(mt, compressedStr, offset + 1);
+	memptr_t resizedPtr = plMTRealloc(mt, compressedStr, offset + 1);
 	if(resizedPtr == NULL)
 		plRTPanic("plRTStrCompress", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
@@ -84,7 +77,7 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 }
 
 memptr_t plRTMemMatch(plptr_t* memBlock1, plptr_t* memBlock2){
-	if(memBlock1 == NULL || memBlock1->pointer == NULL || memBlock2 == NULL || memBlock2->pointer == NULL)
+	if(memBlock1->pointer == NULL || memBlock2->pointer == NULL)
 		plRTPanic("plRTMemMatch", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	uint8_t* mainPtr = memBlock1->pointer;
@@ -107,10 +100,10 @@ memptr_t plRTMemMatch(plptr_t* memBlock1, plptr_t* memBlock2){
 	return NULL;
 }
 
-int64_t plRTStrchr(plstring_t* string, plchar_t chr, size_t startAt){
-	if(isRTStrNull(string))
+int64_t plRTStrchr(plstring_t string, plchar_t chr, size_t startAt){
+	if(string.data.pointer == NULL)
 		plRTPanic("plRTStrchr", PLRT_ERROR | PLRT_NULL_PTR, true);
-	if(string->isplChar)
+	if(string.isplChar)
 		plRTPanic("plRTStrchr", PLRT_ERROR | PLRT_NOT_COMPRESSED, true);
 
 	plptr_t tempStruct = {
@@ -118,42 +111,41 @@ int64_t plRTStrchr(plstring_t* string, plchar_t chr, size_t startAt){
 		.size = getCharSize(chr),
 	};
 
-	string->data.pointer += startAt;
-	memptr_t tempPtr = plRTMemMatch(&string->data, &tempStruct);
+	string.data.pointer += startAt;
+	memptr_t tempPtr = plRTMemMatch(&string.data, &tempStruct);
 	int64_t retVar = -1;
-	string->data.pointer -= startAt;
+	string.data.pointer -= startAt;
 
 	if(tempPtr != NULL)
-		retVar = tempPtr - string->data.pointer;
+		retVar = tempPtr - string.data.pointer;
 
 	return retVar;
 }
 
-int64_t plRTStrstr(plstring_t* string1, plstring_t* string2, size_t startAt){
-	if(isRTStrNull(string1) || isRTStrNull(string2))
+int64_t plRTStrstr(plstring_t string1, plstring_t string2, size_t startAt){
+	if(string1.data.pointer == NULL || string2.data.pointer == NULL)
 		plRTPanic("plRTStrstr", PLRT_ERROR | PLRT_NULL_PTR, true);
-	if(string1->isplChar || string2->isplChar)
+	if(string1.isplChar || string2.isplChar)
 		plRTPanic("plRTStrstr", PLRT_ERROR | PLRT_NOT_COMPRESSED, true);
 
-	string1->data.pointer += startAt;
-	string1->data.size -= startAt;
-	memptr_t tempPtr = plRTMemMatch(&string1->data, &string2->data);
+	string1.data.pointer += startAt;
+	string1.data.size -= startAt;
+	memptr_t tempPtr = plRTMemMatch(&string1.data, &string2.data);
 	int64_t retVar = -1;
-	string1->data.size += startAt;
-	string1->data.pointer -= startAt;
+	string1.data.pointer -= startAt;
 
 	if(tempPtr != NULL)
-		retVar = tempPtr - string1->data.pointer;
+		retVar = tempPtr - string1.data.pointer;
 
 	return retVar;
 }
 
-plstring_t plRTStrtok(plstring_t* string, plstring_t* delimiter, plstring_t* leftoverStr, plmt_t* mt){
-	if(isRTStrNull(string) || isRTStrNull(delimiter) || leftoverStr == NULL || mt == NULL)
+plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* leftoverStr, plmt_t* mt){
+	if(delimiter.data.pointer == NULL || leftoverStr == NULL || mt == NULL)
 		plRTPanic("plRTStrtok", PLRT_ERROR | PLRT_NULL_PTR, true);
-	if(string->isplChar)
+	if(string.isplChar)
 		plRTPanic("plRTStrtok", PLRT_ERROR | PLRT_NOT_COMPRESSED, true);
-	if(!delimiter->isplChar)
+	if(!delimiter.isplChar)
 		plRTPanic("plRTStrtok", PLRT_ERROR | PLRT_NOT_PLCHAR, true);
 
 	plstring_t retStr = {
@@ -165,30 +157,33 @@ plstring_t plRTStrtok(plstring_t* string, plstring_t* delimiter, plstring_t* lef
 		.isplChar = false
 	};
 
+	if(string.data.pointer == NULL)
+		return retStr;
+
 	int iterator = 0;
 	int64_t endOffset = -1;
-	size_t currentPos = 0;
-	size_t searchLimit = string->data.size;
-	plchar_t* delim = delimiter->data.pointer;
-	uint8_t* startPtr = string->data.pointer;
+	int64_t currentPos = 0;
+	size_t searchLimit = string.data.size;
+	plchar_t* delim = delimiter.data.pointer;
+	uint8_t* startPtr = string.data.pointer;
 
 	while(endOffset == -1 && currentPos < searchLimit){
-		size_t tempChr = plRTStrchr(string, delim[iterator], currentPos);
+		int64_t tempChr = plRTStrchr(string, delim[iterator], currentPos);
 
 		if(tempChr == -1){
 			iterator++;
-			if(iterator >= delimiter->data.size)
+			if(iterator >= delimiter.data.size)
 				endOffset = searchLimit;
 		}else{
-			for(int i = 0; i < delimiter->data.size; i++){
+			for(int i = 0; i < delimiter.data.size; i++){
 				if(i != iterator){
-					size_t tempChr2 = plRTStrchr(string, delim[i], currentPos);
+					int64_t tempChr2 = plRTStrchr(string, delim[i], currentPos);
 					if(tempChr2 != -1 && tempChr2 < tempChr)
 						tempChr = tempChr2;
 				}
 			}
 
-			if(tempChr == 0){
+			if(tempChr - currentPos == 0){
 				if(startPtr[currentPos] >= 128){
 					while(startPtr[currentPos] >= 128)
 						currentPos++;
@@ -211,10 +206,10 @@ plstring_t plRTStrtok(plstring_t* string, plstring_t* delimiter, plstring_t* lef
 	}
 
 	/* Copies the memory block into the return struct */
-	retStr.data.size = endOffset - currentPos + 1;
+	retStr.data.size = endOffset - currentPos;
 	retStr.data.pointer = plMTAlloc(mt, retStr.data.size);
 	retStr.mt = mt;
-	memcpy(retStr.data.pointer, string->data.pointer + currentPos, retStr.data.size);
+	memcpy(retStr.data.pointer, string.data.pointer + currentPos, retStr.data.size);
 
 	/* Calculates the pointer to put into leftoverStr*/
 	leftoverStr->data.pointer = NULL;
@@ -228,7 +223,7 @@ plstring_t plRTStrtok(plstring_t* string, plstring_t* delimiter, plstring_t* lef
 
 			if(tempChr != 0){
 				iterator++;
-				if(iterator == delimiter->data.size){
+				if(iterator == delimiter.data.size){
 					leftoverStr->data.pointer = startPtr + leftoverOffset;
 					leftoverStr->data.size = searchLimit - leftoverOffset;
 					leftoverOffset = searchLimit;
@@ -243,17 +238,17 @@ plstring_t plRTStrtok(plstring_t* string, plstring_t* delimiter, plstring_t* lef
 	return retStr;
 }
 
-plstring_t plRTStrdup(plstring_t* string, bool compress, plmt_t* mt){
-	if(isRTStrNull(string) || mt == NULL)
+plstring_t plRTStrdup(plstring_t string, bool compress, plmt_t* mt){
+	if(string.data.pointer || mt == NULL)
 		plRTPanic("plRTStrdup", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	plstring_t retStr;
 
-	retStr.data.pointer = plMTAlloc(mt, string->data.size);
-	retStr.data.size = string->data.size;
+	retStr.data.pointer = plMTAlloc(mt, string.data.size);
+	retStr.data.size = string.data.size;
 	retStr.isplChar = false;
 	retStr.mt = mt;
-	memcpy(retStr.data.pointer, string->data.pointer, string->data.size);
+	memcpy(retStr.data.pointer, string.data.pointer, string.data.size);
 
 	return retStr;
 }

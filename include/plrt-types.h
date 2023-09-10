@@ -41,7 +41,11 @@ typedef enum plrtret {
 	PLRT_IOERR = 9,
 
 	PLRT_NOT_PLCHAR = 10,
-	PLRT_NOT_COMPRESSED = 11
+	PLRT_NOT_COMPRESSED = 11,
+	PLRT_MATCH_NOT_FOUND = 12,
+
+	PLRT_TOKENIZER_FAILURE = 13,
+	PLRT_TOKENIZER_WTF = 14
 } plrtret_t;
 
 void plRTErrorString(plptr_t* buffer, plrtret_t errCode);

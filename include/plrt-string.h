@@ -19,7 +19,7 @@ typedef struct plstring {
 plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt);
 void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt);
 memptr_t plRTMemMatch(plptr_t* memBlock1, plptr_t* memBlock2);
-int64_t plRTStrchr(plstring_t* string, plchar_t chr, size_t startAt);
-int64_t plRTStrstr(plstring_t* string1, plstring_t* string2, size_t startAt);
-plstring_t plRTStrtok(plstring_t* string, plstring_t* delimiter, plstring_t* leftoverStr, plmt_t* mt);
-plstring_t plRTStrdup(plstring_t* string, bool compress, plmt_t* mt);
+int64_t plRTStrchr(plstring_t string, plchar_t chr, size_t startAt);
+int64_t plRTStrstr(plstring_t string1, plstring_t string2, size_t startAt);
+plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* leftoverStr, plmt_t* mt);
+plstring_t plRTStrdup(plstring_t string, bool compress, plmt_t* mt);

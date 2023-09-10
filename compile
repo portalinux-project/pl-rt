@@ -101,7 +101,7 @@ compile_shared_lib(){
 		_compile_obj $srcdir/$i.c "shared"
 	done
 	printf "Creating shared library $libname..."
-	$CC -shared $(find obj | grep shared) -o lib$libname.so $CFLAGS $LDFLAGS
+	$CC -shared $(find obj | grep shared) -o lib$libname.so $LDFLAGS
 	echo "Done."
 	rm *.o -f
 }

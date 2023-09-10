@@ -1,6 +1,6 @@
 /*****************************************************\
- pl-rt, v0.01
- (c) 2023 pocketlinux32, Under MPL v2.0
+ pl-rt, v0.04
+ (c) 2022-2023 pocketlinux32, Under MPL v2.0
  plrt-memory.c: Safe memory management module
 \*****************************************************/
 #include <plrt-memory.h>
@@ -164,10 +164,10 @@ memptr_t plMTRealloc(plmt_t* mt, memptr_t pointer, size_t size){
 	if(mt == NULL || mt->usedMemory + size > mt->maxMemory)
 		return NULL;
 
-	if(plMTManage(mt, PLMT_REALLOC, &tempPtr, size))
+	if(plMTManage(mt, PLMT_REALLOC, tempPtr, size))
 		return NULL;
 
-	return tempPtr;
+	return *tempPtr;
 }
 
 /* free() wrapper that interfaces with the memory allocation tracker */

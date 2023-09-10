@@ -1,3 +1,8 @@
+/*****************************************************************\
+ pl-rt, v0.04
+ (c) 2023 pocketlinux32, Under MPL v2.0
+ plrt-error.c: Error handling module
+\*****************************************************************/
 #include <plrt-types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,12 +10,12 @@
 #include <errno.h>
 
 void plRTErrorString(plptr_t* buffer, plrtret_t errCode){
-	if(buffer == NULL || buffer->pointer == NULL || buffer->size == 0 || errCode & PLRT_ERROR == 0)
+	if(buffer == NULL || buffer->pointer == NULL || buffer->size == 0 || (errCode & PLRT_ERROR) == 0)
 		return;
 
 	plrtret_t actualErrorCode = errCode & ~(PLRT_ERROR | PLRT_ERRNO);
 
-	if(errCode & PLRT_ERRNO != 0){
+	if((errCode & PLRT_ERRNO) != 0){
 		char* holderPtr = strerror(actualErrorCode);
 		size_t sizeOfStr = strlen(holderPtr) + 1;
 		if(sizeOfStr > buffer->size)
@@ -53,6 +58,15 @@ void plRTErrorString(plptr_t* buffer, plrtret_t errCode){
 			case PLRT_NOT_COMPRESSED:
 				holderPtr = "String is a plChar String";
 				break;
+			case PLRT_MATCH_NOT_FOUND:
+				holderPtr = "Could not find a match in string";
+				break;
+			case PLRT_TOKENIZER_FAILURE:
+				holderPtr = "Internal tokenizer failure";
+				break;
+			case PLRT_TOKENIZER_WTF:
+				holderPtr = "what kind of fuckery where you doing mate??????";
+				break;
 			default:
 				holderPtr = "Unknown/Application-specific Error";
 				break;
@@ -77,6 +91,6 @@ void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug){
 	plRTErrorString(&holderStr, errCode);
 	fprintf(stderr, "* Runtime Panic at %s: %s\n", msg, buffer);
 	if(isDeveloperBug)
-		fputs("* If you're a user getting this error, this is a bug. Please report to the developers or maintainers of this project", stderr);
+		fputs("* If you're a user getting this error, this is a bug. Please report to the developers or maintainers of this project\n", stderr);
 	abort();
 }

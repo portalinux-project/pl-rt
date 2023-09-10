@@ -7,6 +7,6 @@
 #include <plrt-string.h>
 #include <plrt-memory.h>
 
-string_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt);
-plarray_t* plRTParser(plstring_t input, plmt_t* mt);
+plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt);
+plptr_t plRTParser(plstring_t input, plmt_t* mt);
 

@@ -1,6 +1,6 @@
 /****************************************************\
  pl-rt, v0.04
- (c) 2023 pocketlinux32, Under MPL v2.0
+ (c) 2022-2023 pocketlinux32, Under MPL v2.0
  plrt-file.c: File management module
 \****************************************************/
 #include <plrt-file.h>
