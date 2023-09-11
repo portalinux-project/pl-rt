@@ -9,4 +9,4 @@
 
 plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt);
 plptr_t plRTParser(plstring_t input, plmt_t* mt);
-
+void plRTFreeParsedString(plptr_t stringArray);
