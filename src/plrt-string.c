@@ -1,8 +1,8 @@
-/**********************************************\
- pl-rt, v0.04
+/*********************************************\
+ pl-rt, v0.05
  (c) 2022-2023 pocketlinux32, Under MPL v2.0
  plrt-string.c: UTF-8 String ops module header
-\**********************************************/
+\*********************************************/
 #include <plrt-string.h>
 
 size_t getCharSize(plchar_t chr){

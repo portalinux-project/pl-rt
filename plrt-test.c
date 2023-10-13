@@ -26,7 +26,14 @@ void printCurrentMemUsg(plmt_t* mt){
 }
 
 int testLoop(plstring_t strToTokenize, plmt_t* mt){
-	plstring_t holder;
+	plstring_t holder = {
+		.data = {
+			.pointer = NULL,
+			.size = 0
+		},
+		.mt = NULL,
+		.isplChar = false
+	};
 	plstring_t result = plRTTokenize(strToTokenize, &holder, mt);
 	int i = 1;
 
@@ -270,7 +277,7 @@ int main(int argc, char* argv[]){
 	plmt_t* mainMT = plMTInit(8 * 1024 * 1024);
 
 	if(argc < 2){
-		printf("Valid test values:\n parser-test\n memory-test\n file-test\n string-test\n");
+		printf("Valid test values:\n token-test\n memory-test\n file-test\n string-test\n");
 		return 1;
 	}
 

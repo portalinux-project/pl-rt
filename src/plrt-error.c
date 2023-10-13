@@ -1,8 +1,8 @@
-/*****************************************************************\
- pl-rt, v0.04
+/**************************************\
+ pl-rt, v0.05
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-error.c: Error handling module
-\*****************************************************************/
+\**************************************/
 #include <plrt-types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,15 +81,18 @@ void plRTErrorString(plptr_t* buffer, plrtret_t errCode){
 }
 
 void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug){
-	char buffer[512];
+	if(msg != NULL){
+		char buffer[512];
 
-	plptr_t holderStr = {
-		.pointer = buffer,
-		.size = 512
-	};
+		plptr_t holderStr = {
+			.pointer = buffer,
+			.size = 512
+		};
 
-	plRTErrorString(&holderStr, errCode);
-	fprintf(stderr, "* Runtime Panic at %s: %s\n", msg, buffer);
+		plRTErrorString(&holderStr, errCode);
+		fprintf(stderr, "* Runtime Panic at %s: %s\n", msg, buffer);
+	}
+
 	if(isDeveloperBug)
 		fputs("* If you're a user getting this error, this is a bug. Please report to the developers or maintainers of this project\n", stderr);
 	abort();

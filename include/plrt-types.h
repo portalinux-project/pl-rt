@@ -1,19 +1,23 @@
 /**********************************************************\
- pl-rt, v0.04
+ pl-rt, v0.05
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-types.h: Types header and Error handler module header
 \**********************************************************/
 
 #pragma once
+#if defined(__cplusplus) && !defined(PLRTCPP)
+	#error Using the C headers in a C++ program is not supported. Please use plrt.hpp
+#endif
+
 #ifndef __cplusplus
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 #endif
 
-#define PLRT_VERSION "0.04"
+#define PLRT_VERSION "0.05"
 #define PLRT_API_VER 0
-#define PLRT_FEATURELVL 4
+#define PLRT_FEATURELVL 5
 #define PLRT_PATCHLVL 0
 #define UINT_SHIFT_LIMIT 63
 

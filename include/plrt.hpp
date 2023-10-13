@@ -8,25 +8,22 @@
 #include <cstdint>
 #include <cstdio>
 
-#define PL32CPP
+#define PLRTCPP
 
-namespace pl32 {
+namespace plRT {
 	namespace cApi {
-		extern "C" {
-			#include <pl32-memory.h>
-			#include <pl32-token.h>
-			#include <pl32-file.h>
-			//#include <pl32-ustring.h>	Incomplete, disabled for now
+		extern "C"{
+			#include <plrt.h>
 		}
 	}
 
 	namespace memory {
 		class tracker {
 			private:
-				pl32::cApi::plmt_t* mt;
+				plRT::cApi::plmt_t* mt;
 			public:
 				tracker(size_t maxMemoryAmnt){
-					mt = pl32::cApi::plMTInit(maxMemoryAmnt);
+					mt = plRT::cApi::plMTInit(maxMemoryAmnt);
 				}
 
 				tracker(){
@@ -35,53 +32,53 @@ namespace pl32 {
 
 				~tracker(){
 					if(mt != NULL)
-						pl32::cApi::plMTStop(mt);
+						plRT::cApi::plMTStop(mt);
 				}
 
 				void init(size_t maxMemoryAmnt){
 					if(mt == NULL)
-						mt = pl32::cApi::plMTInit(maxMemoryAmnt);
+						mt = plRT::cApi::plMTInit(maxMemoryAmnt);
 				}
 
 				size_t getUsedSize(){
-					return pl32::cApi::plMTMemAmnt(mt, pl32::cApi::PLMT_GET_USEDMEM, 0);
+					return plRT::cApi::plMTMemAmnt(mt, plRT::cApi::PLMT_GET_USEDMEM, 0);
 				}
 
 				size_t getMaxSize(){
-					return pl32::cApi::plMTMemAmnt(mt, pl32::cApi::PLMT_GET_MAXMEM, 0);
+					return plRT::cApi::plMTMemAmnt(mt, plRT::cApi::PLMT_GET_MAXMEM, 0);
 				}
 
 				void setMaxSize(size_t newMaxSize){
-					pl32::cApi::plMTMemAmnt(mt, pl32::cApi::PLMT_SET_MAXMEM, newMaxSize);
+					plRT::cApi::plMTMemAmnt(mt, plRT::cApi::PLMT_SET_MAXMEM, newMaxSize);
 				}
 
-				pl32::cApi::memptr_t alloc(size_t size){
-					return pl32::cApi::plMTAllocE(mt, size);
+				plRT::cApi::memptr_t alloc(size_t size){
+					return plRT::cApi::plMTAlloc(mt, size);
 				}
 
-				pl32::cApi::memptr_t calloc(size_t size, size_t amount){
-					return pl32::cApi::plMTCalloc(mt, size, amount);
+				plRT::cApi::memptr_t calloc(size_t size, size_t amount){
+					return plRT::cApi::plMTCalloc(mt, size, amount);
 				}
 
-				pl32::cApi::memptr_t realloc(pl32::cApi::memptr_t pointer, size_t newSize){
-					return pl32::cApi::plMTRealloc(mt, pointer, newSize);
+				plRT::cApi::memptr_t realloc(plRT::cApi::memptr_t pointer, size_t newSize){
+					return plRT::cApi::plMTRealloc(mt, pointer, newSize);
 				}
 
-				void free(pl32::cApi::memptr_t pointer){
-					pl32::cApi::plMTFree(mt, pointer);
+				void free(plRT::cApi::memptr_t pointer){
+					plRT::cApi::plMTFree(mt, pointer);
 				}
 
-				pl32::cApi::plmt_t* getMTHandle(){
+				plRT::cApi::plmt_t* getMTHandle(){
 					return mt;
 				}
 		};
 
 		class fatPointer {
 			private:
-				pl32::cApi::plfatptr_t fatPtr;
-				bool is2DArray;
+				plRT::cApi::plptr_t fatPtr;
+				tracker &tracker;
 			public:
-				fatPointer(pl32::cApi::memptr_t pointer, size_t size, bool is2dimArray, bool isMemAlloc, tracker &tracker){
+				fatPointer(pl32::cApi::memptr_t pointer, size_t size, tracker &tracker){
 					fatPtr.array = pointer;
 					fatPtr.size = size;
 					fatPtr.isMemAlloc = isMemAlloc;
@@ -100,22 +97,6 @@ namespace pl32 {
 				~fatPointer(){
 					if(fatPtr.isMemAlloc && fatPtr.mt != NULL)
 						pl32::cApi::plMTFreeArray(&fatPtr, is2DArray);
-				}
-
-				pl32::cApi::memptr_t getPointer(){
-					return fatPtr.array;
-				}
-
-				size_t getSize(){
-					return fatPtr.size;
-				}
-
-				bool isMemAlloc(){
-					return fatPtr.isMemAlloc;
-				}
-
-				const pl32::cApi::plfatptr_t* getFatPointerHandle(){
-					return &fatPtr;
 				}
 		};
 	}
