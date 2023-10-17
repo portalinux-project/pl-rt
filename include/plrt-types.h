@@ -49,7 +49,8 @@ typedef enum plrtret {
 	PLRT_MATCH_NOT_FOUND = 12,
 
 	PLRT_TOKENIZER_FAILURE = 13,
-	PLRT_TOKENIZER_WTF = 14
+	PLRT_TOKENIZER_WTF = 14,
+	PLRT_INVALID_TOKEN = 15
 } plrtret_t;
 
 void plRTErrorString(plptr_t* buffer, plrtret_t errCode);

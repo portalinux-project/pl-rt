@@ -137,7 +137,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 	}
 }
 
-plptr_t plRTParse(plstring_t string, plmt_t* mt){
+plptr_t plRTParser(plstring_t string, plmt_t* mt){
 	if(string.data.pointer == NULL || mt == NULL)
 		plRTPanic("plRTParse", PLRT_ERROR | PLRT_NULL_PTR, true);
 
@@ -160,6 +160,8 @@ plptr_t plRTParse(plstring_t string, plmt_t* mt){
 		((plstring_t*)retPtr.pointer)[retPtr.size] = holderStr;
 		retPtr.size++;
 	}
+
+	return retPtr;
 }
 
 void plRTFreeParsedString(plptr_t stringArray){

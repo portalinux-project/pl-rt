@@ -4,8 +4,7 @@
  plrt-plml.h: PLML parser module header
 \*******************************************/
 #pragma once
-#include <plrt-memory.h>
-#include <plrt-string.h>
+#include <plrt-token.h>
 
 typedef enum plmltype {
 	PLML_TYPE_INT,
