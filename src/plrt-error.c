@@ -67,6 +67,9 @@ void plRTErrorString(plptr_t* buffer, plrtret_t errCode){
 			case PLRT_TOKENIZER_WTF:
 				holderPtr = "what kind of fuckery where you doing mate??????";
 				break;
+			case PLRT_INVALID_TOKEN:
+				holderPtr = "Invalid PLML Token";
+				break;
 			default:
 				holderPtr = "Unknown/Application-specific Error";
 				break;

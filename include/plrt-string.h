@@ -17,6 +17,7 @@ typedef struct plstring {
 } plstring_t;
 
 plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt);
+plstring_t plRTStrFromPLPtr(plptr_t pointer, plmt_t* mt, bool isplChar, bool isMemAlloc);
 void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt);
 memptr_t plRTMemMatch(plptr_t* memBlock1, plptr_t* memBlock2);
 int64_t plRTStrchr(plstring_t string, plchar_t chr, size_t startAt);

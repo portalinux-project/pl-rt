@@ -80,8 +80,11 @@ size_t plFRead(plptr_t ptr, plfile_t* stream){
 		plRTPanic("plFRead", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	if(stream->fileptr == NULL){
-		if(ptr.size > stream->bufsize - stream->seekbyte)
-			return 0;
+		if(ptr.size > stream->bufsize - stream->seekbyte){
+			if(stream->bufsize - stream->seekbyte)
+				return 0;
+			ptr.size = stream->bufsize - stream->seekbyte;
+		}
 
 		memcpy(ptr.pointer, stream->strbuf + stream->seekbyte, ptr.size);
 		stream->seekbyte += ptr.size;
@@ -197,6 +200,7 @@ int plFGets(plstring_t* string, plfile_t* stream){
 		memptr_t tmpVar = fgets(string->data.pointer, string->data.size, stream->fileptr);
 		if(tmpVar == NULL)
 			return 1;
+		string->data.size = strlen(string->data.pointer);
 	}
 
 	return 0;

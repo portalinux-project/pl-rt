@@ -106,8 +106,9 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 		}
 
 		retStr.data.size = endOffset - startOffset;
-		retStr.data.pointer = plMTAlloc(mt, retStr.data.size);
+		retStr.data.pointer = plMTAlloc(mt, retStr.data.size + 1);
 		memcpy(retStr.data.pointer, string.data.pointer + startOffset, retStr.data.size);
+		((char*)retStr.data.pointer)[retStr.data.size] = '\0';
 
 		int64_t escapedChars = plRTStrchr(retStr, delimiters[6], 0);
 		if(escapedChars != -1){
@@ -148,15 +149,18 @@ plptr_t plRTParser(plstring_t string, plmt_t* mt){
 
 	plstring_t leftoverStr;
 	plstring_t holderStr = plRTTokenize(string, &leftoverStr, mt);
+	((plstring_t*)retPtr.pointer)[retPtr.size] = holderStr;
+	retPtr.size++;
 
-	while(holderStr.data.pointer == NULL){
+	while(leftoverStr.data.pointer != NULL){
 		if(retPtr.size > 1){
-			memptr_t tempPtr = plMTRealloc(mt, retPtr.pointer, retPtr.size * sizeof(plstring_t));
+			memptr_t tempPtr = plMTRealloc(mt, retPtr.pointer, (retPtr.size + 1) * sizeof(plstring_t));
 			if(tempPtr == NULL)
 				plRTPanic("plRTParse", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
 			retPtr.pointer = tempPtr;
 		}
+		holderStr = plRTTokenize(leftoverStr, &leftoverStr, mt);
 		((plstring_t*)retPtr.pointer)[retPtr.size] = holderStr;
 		retPtr.size++;
 	}

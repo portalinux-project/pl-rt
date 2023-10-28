@@ -7,18 +7,20 @@
 #include <plrt-token.h>
 
 typedef enum plmltype {
+	PLML_TYPE_NULL,
 	PLML_TYPE_INT,
 	PLML_TYPE_BOOL,
 	PLML_TYPE_FLOAT,
 	PLML_TYPE_STRING,
-	PLML_TYPE_HEADER,
+	PLML_TYPE_HEADER
 } plmltype_t;
 
 typedef union plmlval {
-	int integer;
+	long integer;
 	bool boolean;
 	double decimal;
-	char* string;
+	plptr_t string;
+	plptr_t array;
 } plmlval_t;
 
 typedef struct plmltoken {

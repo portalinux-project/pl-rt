@@ -25,83 +25,6 @@ void printCurrentMemUsg(plmt_t* mt){
 		fputs("\n", stdout);
 }
 
-int testLoop(plstring_t strToTokenize, plmt_t* mt){
-	plstring_t holder = {
-		.data = {
-			.pointer = NULL,
-			.size = 0
-		},
-		.mt = NULL,
-		.isplChar = false
-	};
-	plstring_t result = plRTTokenize(strToTokenize, &holder, mt);
-	int i = 1;
-
-	if(result.data.pointer == NULL)
-		return 1;
-
-	while(result.data.pointer != NULL){
-		printf("Token %d: ", i);
-		fwrite(result.data.pointer, 1, result.data.size, stdout);
-		printf("\n");
-		plMTFree(mt, result.data.pointer);
-		i++;
-		result = plRTTokenize(holder, &holder, mt);
-	}
-
-	return 0;
-}
-
-int plRTFileTest(char* customFile, plmt_t* mt){
-	plstring_t stringBuffer = {
-		.data = {
-			.pointer = plMTAlloc(mt, 4096),
-			.size = 4096
-		},
-		.mt = mt,
-		.isplChar = false
-	};
-
-	char filepath[256] = "src/plrt-file.c";
-	if(customFile != NULL)
-		strcpy(filepath, customFile);
-
-	printf("Opening an existing file...");
-	plfile_t* realFile = plFOpen(filepath, "r", mt);
-	plfile_t* memFile = plFOpen(NULL, "w+", mt);
-
-	if(realFile == NULL){
-		printf("Error!\nError opening file. Exiting...\n");
-		plFClose(memFile);
-		return 1;
-	}
-
-	printf("Done\n");
-	printf("Contents of %s:\n\n", filepath);
-	while(plFGets(&stringBuffer, realFile) != 1){
-		printf("%s", (char*)stringBuffer.data.pointer);
-		for(int i = 0; i < 4096; i++)
-			((char*)stringBuffer.data.pointer)[i] = 0;
-	}
-
-	printf("Reading and writing to file-in-memory...");
-	plstring_t memString = plRTStrFromCStr("test string getting sent to the yes\nnano", NULL);
-	plFPuts(&memString, memFile);
-	plFSeek(memFile, 0, SEEK_SET);
-	printf("Done\n");
-	printf("Contents of file-in-memory:\n");
-	while(plFGets(&stringBuffer, memFile) != 1){
-		printf("%s", (char*)stringBuffer.data.pointer);
-		for(int i = 0; i < 4096; i++)
-			((char*)stringBuffer.data.pointer)[i] = 0;
-	}
-
-	plFClose(realFile);
-	plFClose(memFile);
-
-	return 0;
-}
-
 int plRTMemoryTest(plmt_t* mt){
 	printCurrentMemUsg(mt);
 
@@ -257,6 +180,81 @@ int plRTStringTest(plmt_t* mt){
 	return 0;
 }
 
+int plRTFileTest(char* customFile, plmt_t* mt){
+	plstring_t stringBuffer = {
+		.data = {
+			.pointer = plMTAlloc(mt, 4096),
+			.size = 4096
+		},
+		.mt = mt,
+		.isplChar = false
+	};
+
+	char filepath[256] = "src/plrt-file.c";
+	if(customFile != NULL)
+		strncpy(filepath, customFile, 256);
+
+	printf("Opening an existing file...");
+	plfile_t* realFile = plFOpen(filepath, "r", mt);
+	plfile_t* memFile = plFOpen(NULL, "w+", mt);
+
+	if(realFile == NULL){
+		printf("Error!\nError opening file. Exiting...\n");
+		plFClose(memFile);
+		return 1;
+	}
+
+	printf("Done\n");
+	printf("Contents of %s:\n\n", filepath);
+	while(plFGets(&stringBuffer, realFile) != 1){
+		printf("%s", (char*)stringBuffer.data.pointer);
+		for(int i = 0; i < 4096; i++)
+			((char*)stringBuffer.data.pointer)[i] = 0;
+	}
+
+	printf("Reading and writing to file-in-memory...");
+	plstring_t memString = plRTStrFromCStr("test string getting sent to the yes\nnano", NULL);
+	plFPuts(&memString, memFile);
+	plFSeek(memFile, 0, SEEK_SET);
+	printf("Done\n");
+	printf("Contents of file-in-memory:\n");
+	while(plFGets(&stringBuffer, memFile) != 1){
+		printf("%s", (char*)stringBuffer.data.pointer);
+		for(int i = 0; i < 4096; i++)
+			((char*)stringBuffer.data.pointer)[i] = 0;
+	}
+
+	plFClose(realFile);
+	plFClose(memFile);
+
+	return 0;
+}
+
+int testLoop(plstring_t strToTokenize, plmt_t* mt){
+	plstring_t holder = {
+		.data = {
+			.pointer = NULL,
+			.size = 0
+		},
+		.mt = NULL,
+		.isplChar = false
+	};
+	plstring_t result = plRTTokenize(strToTokenize, &holder, mt);
+	int i = 1;
+
+	if(result.data.pointer == NULL)
+		return 1;
+
+	while(result.data.pointer != NULL){
+		printf("Token %d: %s\n", i, (char*)result.data.pointer);
+		plMTFree(mt, result.data.pointer);
+		i++;
+		result = plRTTokenize(holder, &holder, mt);
+	}
+
+	return 0;
+}
+
 int plRTTokenTest(plmt_t* mt){
 	char* tknTestStrings[10] = { "oneword", "two words", "\"multiple words enclosed by quotes\" not anymore x3", "\"quotes at the beginning\" some stuff in the middle \"and now quotes at the back\"", "\"just quotes x3\"", "\'time for a literal string :3\' with stuff \"mixed all over\" it x3", "\"\\\"Escaped quotes this time\\\"\" and 'just a literal string with no ending :3", "\"now we have a basic string with no ending but 'a literal that does :3'", "string    with an  embedded = newline \" char\"\n  ", "[\"array test\",\'literal string here\', \"basic string here, preceded by a space\"]" };
 
@@ -273,20 +271,75 @@ int plRTTokenTest(plmt_t* mt){
 	return 0;
 }
 
+int plMLTest(char* customFile, plmt_t* mt){
+	printf("Parsing PLML...\n\n");
+	char filepath[256] = "plml-test.plml";
+	if(customFile != NULL)
+		strncpy(filepath, customFile, 256);
+	plfile_t* fileToParse = plFOpen(filepath, "r", mt);
+	plstring_t lineBuffer = {
+		.data = {
+			.pointer = plMTAlloc(mt, 4096),
+			.size = 4096
+		},
+		.mt = mt,
+		.isplChar = false
+	};
+
+	int i = 1;
+	while(plFGets(&lineBuffer, fileToParse) != 1){
+		plmltoken_t parsedToken = plMLParse(lineBuffer, mt);
+
+		printf("Token %d\n\n", i);
+		printf("Name: %s\n", (char*)parsedToken.name.data.pointer);
+		printf("Type: ");
+		switch(parsedToken.type){
+			case PLML_TYPE_STRING:
+				printf("String\n");
+				printf("Value: %s\n\n", (char*)parsedToken.value.string.pointer);
+				break;
+			case PLML_TYPE_BOOL:
+				printf("Bool\n");
+				printf("Value: ");
+				if(parsedToken.value.boolean)
+					printf("True\n\n");
+				else
+					printf("False\n\n");
+				break;
+			case PLML_TYPE_INT:
+				printf("Integer\n");
+				printf("Value: %li\n\n", parsedToken.value.integer);
+				break;
+			case PLML_TYPE_HEADER:
+				printf("Header\n\n");
+				break;
+			case PLML_TYPE_FLOAT:
+				printf("Float\n");
+				printf("Value: %f\n\n", parsedToken.value.decimal);
+			default: ;
+		}
+
+		plMLFreeToken(parsedToken);
+		lineBuffer.data.size = 4096;
+		i++;
+	}
+
+	plMTStop(mt);
+	return 0;
+}
+
 int main(int argc, char* argv[]){
 	plmt_t* mainMT = plMTInit(8 * 1024 * 1024);
 
 	if(argc < 2){
-		printf("Valid test values:\n token-test\n memory-test\n file-test\n string-test\n");
+		printf("Valid test values:\n memory-test\n file-test\n string-test\n token-test\n plml-test\n");
 		return 1;
 	}
 
 	if(argc > 2)
 		nonInteractive = true;
 
-	if(strcmp(argv[1], "token-test") == 0){
-		return plRTTokenTest(mainMT);
-	}else if(strcmp(argv[1], "memory-test") == 0){
+	if(strcmp(argv[1], "memory-test") == 0){
 		return plRTMemoryTest(mainMT);
 	}else if(strcmp(argv[1], "file-test") == 0){
 		if(argc > 2)
@@ -295,6 +348,13 @@ int main(int argc, char* argv[]){
 		return plRTFileTest(NULL, mainMT);
 	}else if(strcmp(argv[1], "string-test") == 0){
 		return plRTStringTest(mainMT);
+	}else if(strcmp(argv[1], "token-test") == 0){
+		return plRTTokenTest(mainMT);
+	}else if(strcmp(argv[1], "plml-test") == 0){
+		if(argc > 2)
+			return plMLTest(argv[2], mainMT);
+
+		return plMLTest(NULL, mainMT);
 	}else{
 		return 1;
 	}

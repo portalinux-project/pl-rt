@@ -22,7 +22,7 @@ plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt){
 	memptr_t tempPtr = cStr;
 	bool memAlloc = false;
 	if(mt != NULL){
-		tempPtr = plMTAlloc(mt, cStrSize);
+		tempPtr = plMTAlloc(mt, cStrSize + 1);
 		memAlloc = true;
 		memcpy(tempPtr, cStr, cStrSize);
 	}
@@ -37,6 +37,21 @@ plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt){
 	};
 
 	return retStruct;
+}
+
+plstring_t plRTStrFromPLPtr(plptr_t pointer, plmt_t* mt, bool isplChar, bool isMemAlloc){
+	plstring_t retStr = {
+		.data = pointer,
+		.mt = mt,
+		.isplChar = isplChar
+	};
+
+	if(mt != NULL && !isMemAlloc){
+		retStr.data.pointer = plMTAlloc(mt, pointer.size + 1);
+		memcpy(retStr.data.pointer, pointer.pointer, pointer.size);
+	}
+
+	return retStr;
 }
 
 void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
@@ -82,7 +97,8 @@ memptr_t plRTMemMatch(plptr_t* memBlock1, plptr_t* memBlock2){
 
 	uint8_t* mainPtr = memBlock1->pointer;
 	uint8_t* searchPtr = memBlock2->pointer;
-	for(int i = 0; i < memBlock1->size - memBlock2->size; i++){
+
+	for(int i = 0; i <= memBlock1->size - memBlock2->size; i++){
 		if(*(mainPtr + i) == *(searchPtr)){
 			bool isThere = true;
 			for(int j = 1; j < memBlock2->size; j++){
@@ -207,9 +223,10 @@ plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* lefto
 
 	/* Copies the memory block into the return struct */
 	retStr.data.size = endOffset - currentPos;
-	retStr.data.pointer = plMTAlloc(mt, retStr.data.size);
+	retStr.data.pointer = plMTAlloc(mt, retStr.data.size + 1);
 	retStr.mt = mt;
 	memcpy(retStr.data.pointer, string.data.pointer + currentPos, retStr.data.size);
+	((char*)retStr.data.pointer)[retStr.data.size] = '\0';
 
 	/* Calculates the pointer to put into leftoverStr*/
 	leftoverStr->data.pointer = NULL;
@@ -244,7 +261,7 @@ plstring_t plRTStrdup(plstring_t string, bool compress, plmt_t* mt){
 
 	plstring_t retStr;
 
-	retStr.data.pointer = plMTAlloc(mt, string.data.size);
+	retStr.data.pointer = plMTAlloc(mt, string.data.size + 1);
 	retStr.data.size = string.data.size;
 	retStr.isplChar = false;
 	retStr.mt = mt;

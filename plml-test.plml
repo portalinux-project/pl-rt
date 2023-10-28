@@ -1,0 +1,6 @@
+[test-header] # comment test 123
+testAttrib = "testValue 123" #this time without a space on the pound sign :3
+testAttrib2 = 1234
+testAttrib3 = true
+testAttrib4 = 1234.56
+testAttrib5 = 123
