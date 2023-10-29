@@ -91,26 +91,31 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 	plCharStr->mt = mt;
 }
 
-memptr_t plRTMemMatch(plptr_t* memBlock1, plptr_t* memBlock2){
-	if(memBlock1->pointer == NULL || memBlock2->pointer == NULL)
+int plRTIsMemPatternDiff(uint8_t* mainPtr, plptr_t searchPtr){
+	int isDiff = -1;
+	uint8_t* rawSearchPtr = searchPtr.pointer;
+
+	if(*mainPtr == *rawSearchPtr){
+		for(int j = 1; j < searchPtr.size; j++){
+			if(*(mainPtr + j) != *(rawSearchPtr + j)){
+				isDiff = j;
+				j = searchPtr.size;
+			}
+		}
+
+		return isDiff;
+	}
+
+	return 0;
+}
+
+memptr_t plRTMemMatch(plptr_t memBlock1, plptr_t memBlock2){
+	if(memBlock1.pointer == NULL || memBlock2.pointer == NULL)
 		plRTPanic("plRTMemMatch", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	uint8_t* mainPtr = memBlock1->pointer;
-	uint8_t* searchPtr = memBlock2->pointer;
-
-	for(int i = 0; i <= memBlock1->size - memBlock2->size; i++){
-		if(*(mainPtr + i) == *(searchPtr)){
-			bool isThere = true;
-			for(int j = 1; j < memBlock2->size; j++){
-				if(*(mainPtr + i + j) != *(searchPtr + j)){
-					isThere = false;
-					j = memBlock2->size;
-				}
-			}
-
-			if(isThere)
-				return mainPtr + i;
-		}
+	for(int i = 0; i <= memBlock1.size - memBlock2.size; i++){
+		if(plRTIsMemPatternDiff(memBlock1.pointer + i, memBlock2) == -1)
+			return memBlock1.pointer + i;
 	}
 
 	return NULL;
@@ -128,7 +133,7 @@ int64_t plRTStrchr(plstring_t string, plchar_t chr, size_t startAt){
 	};
 
 	string.data.pointer += startAt;
-	memptr_t tempPtr = plRTMemMatch(&string.data, &tempStruct);
+	memptr_t tempPtr = plRTMemMatch(string.data, tempStruct);
 	int64_t retVar = -1;
 	string.data.pointer -= startAt;
 
@@ -146,7 +151,7 @@ int64_t plRTStrstr(plstring_t string1, plstring_t string2, size_t startAt){
 
 	string1.data.pointer += startAt;
 	string1.data.size -= startAt;
-	memptr_t tempPtr = plRTMemMatch(&string1.data, &string2.data);
+	memptr_t tempPtr = plRTMemMatch(string1.data, string2.data);
 	int64_t retVar = -1;
 	string1.data.pointer -= startAt;
 
@@ -154,6 +159,20 @@ int64_t plRTStrstr(plstring_t string1, plstring_t string2, size_t startAt){
 		retVar = tempPtr - string1.data.pointer;
 
 	return retVar;
+}
+
+int plRTStrcmp(plstring_t string1, plstring_t string2){
+	if(string1.data.size > string2.data.size)
+		return ((uint8_t*)string1.data.pointer)[string2.data.size - 1];
+	else if(string1.data.size < string2.data.size)
+		return ((uint8_t*)string2.data.pointer)[string1.data.size - 1];
+
+	int diffChar = plRTIsMemPatternDiff(string1.data.pointer, string2.data);
+	if(diffChar != 1){
+		return ((uint8_t*)string1.data.pointer)[diffChar] - ((uint8_t*)string2.data.pointer)[diffChar];
+	}
+
+	return 0;
 }
 
 plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* leftoverStr, plmt_t* mt){

@@ -44,11 +44,13 @@ plptr_t plMLSanitize(plstring_t string, plmt_t* mt){
 					useOffset = 1;
 
 				memptr_t tempPtr = NULL;
-				memcpy(retStrArr[useOffset].data.pointer, retStrArr[useOffset].data.pointer + 1, retStrArr[useOffset].data.size - 1);
+				if(useOffset == 1)
+					memcpy(retStrArr[useOffset].data.pointer, retStrArr[useOffset].data.pointer + 1, retStrArr[useOffset].data.size - 1);
 				tempPtr = plMTRealloc(mt, retStrArr[useOffset].data.pointer, retStrArr[useOffset].data.size - 1);
 				if(tempPtr == NULL)
 					plRTPanic("plMLSanitize", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
+				((char*)tempPtr)[retStrArr[useOffset].data.size - 2] = '\0';
 				retStrArr[useOffset].data.pointer = tempPtr;
 				retStrArr[useOffset].data.size--;
 			}
