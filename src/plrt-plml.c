@@ -46,11 +46,12 @@ plptr_t plMLSanitize(plstring_t string, plmt_t* mt){
 				memptr_t tempPtr = NULL;
 				if(useOffset == 1)
 					memcpy(retStrArr[useOffset].data.pointer, retStrArr[useOffset].data.pointer + 1, retStrArr[useOffset].data.size - 1);
-				tempPtr = plMTRealloc(mt, retStrArr[useOffset].data.pointer, retStrArr[useOffset].data.size - 1);
+
+				((char*)retStrArr[useOffset].data.pointer)[retStrArr[useOffset].data.size - 1] = '\0';
+				tempPtr = plMTRealloc(mt, retStrArr[useOffset].data.pointer, retStrArr[useOffset].data.size);
 				if(tempPtr == NULL)
 					plRTPanic("plMLSanitize", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
-				((char*)tempPtr)[retStrArr[useOffset].data.size - 2] = '\0';
 				retStrArr[useOffset].data.pointer = tempPtr;
 				retStrArr[useOffset].data.size--;
 			}
@@ -79,6 +80,7 @@ plptr_t plMLSanitize(plstring_t string, plmt_t* mt){
 			plRTPanic("plMLSanitize", PLRT_ERROR | PLRT_INVALID_TOKEN, false);
 
 		if(actualString[0] != '['){
+			actualString[equalSign] = ' ';
 			plptr_t newRetStr = plRTParser(retStrArr[0], mt);
 			plMTFree(mt, actualString);
 			plMTFree(mt, retStr.pointer);

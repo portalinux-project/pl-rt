@@ -111,6 +111,9 @@ int plMTManage(plmt_t* mt, plmtiaction_t mode, memptr_t ptr, size_t size){
 			if(reallocResult == -1)
 				return 1;
 
+			if(mt->ptrList[reallocResult].size == size)
+				return 0;
+
 			memptr_t tempPtr = realloc(*(memptr_t*)ptr, size);
 			if(tempPtr == NULL)
 				plRTPanic("plMTManage", PLRT_ERROR | PLRT_FAILED_ALLOC, false);

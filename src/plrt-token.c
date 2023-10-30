@@ -45,6 +45,12 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 	if(string.data.size == 0)
 		return retStr;
 
+	if(*((char*)string.data.pointer) == '\n' && string.data.size == 1){
+		leftoverStr->data.pointer = NULL;
+		leftoverStr->data.size = 0;
+		return retStr;
+	}
+
 	int64_t delimOffsets[5] = { plRTStrchr(string, delimiters[0], 0), plRTStrchr(string, delimiters[1], 0), plRTStrchr(string, delimiters[2], 0), -1, plRTStrchr(string, delimiters[4], 0)};
 	int64_t quoteEndings[2] = { -1, -1 };
 
@@ -126,12 +132,18 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 			retStr.data.pointer = tempPtr;
 		}
 
+		leftoverStr->isplChar = false;
 		if(endOffset == searchLimit || (endOffset == searchLimit - 1 && (((char*)retStr.data.pointer)[searchLimit] == ' ' || ((char*)retStr.data.pointer)[searchLimit] == '\n'))){
 			leftoverStr->data.pointer = NULL;
 			leftoverStr->data.size = 0;
 		}else{
-			leftoverStr->data.pointer = string.data.pointer + endOffset + 1;
-			leftoverStr->data.size = string.data.size - (endOffset + 1);
+			if((((char*)string.data.pointer)[endOffset] == '"' && basicQuoteIsNotFirstChar) || (((char*)string.data.pointer)[endOffset] == '\'' && literalQuoteIsNotFirstChar)){
+				leftoverStr->data.pointer = string.data.pointer + endOffset;
+				leftoverStr->data.size = string.data.size - endOffset;
+			}else{
+				leftoverStr->data.pointer = string.data.pointer + endOffset + 1;
+				leftoverStr->data.size = string.data.size - (endOffset + 1);
+			}
 		}
 
 		return retStr;
@@ -152,7 +164,7 @@ plptr_t plRTParser(plstring_t string, plmt_t* mt){
 	((plstring_t*)retPtr.pointer)[retPtr.size] = holderStr;
 	retPtr.size++;
 
-	while(leftoverStr.data.pointer != NULL){
+	while(leftoverStr.data.pointer != NULL && *((char*)leftoverStr.data.pointer) != '\0'){
 		if(retPtr.size > 1){
 			memptr_t tempPtr = plMTRealloc(mt, retPtr.pointer, (retPtr.size + 1) * sizeof(plstring_t));
 			if(tempPtr == NULL)
@@ -161,8 +173,10 @@ plptr_t plRTParser(plstring_t string, plmt_t* mt){
 			retPtr.pointer = tempPtr;
 		}
 		holderStr = plRTTokenize(leftoverStr, &leftoverStr, mt);
-		((plstring_t*)retPtr.pointer)[retPtr.size] = holderStr;
-		retPtr.size++;
+		if(holderStr.data.pointer != NULL){
+			((plstring_t*)retPtr.pointer)[retPtr.size] = holderStr;
+			retPtr.size++;
+		}
 	}
 
 	return retPtr;
