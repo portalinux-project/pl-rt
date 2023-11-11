@@ -27,6 +27,7 @@ typedef struct plmltoken {
 	plstring_t name;
 	plmltype_t type;
 	plmlval_t value;
+	bool isArray;
 	const plmt_t* const mt;
 } plmltoken_t;
 

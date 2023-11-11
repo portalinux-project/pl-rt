@@ -210,6 +210,7 @@ int plRTFileTest(char* customFile, plmt_t* mt){
 		printf("%s", (char*)stringBuffer.data.pointer);
 		for(int i = 0; i < 4096; i++)
 			((char*)stringBuffer.data.pointer)[i] = 0;
+		stringBuffer.data.size = 4096;
 	}
 
 	printf("Reading and writing to file-in-memory...");
@@ -222,6 +223,7 @@ int plRTFileTest(char* customFile, plmt_t* mt){
 		printf("%s", (char*)stringBuffer.data.pointer);
 		for(int i = 0; i < 4096; i++)
 			((char*)stringBuffer.data.pointer)[i] = 0;
+		stringBuffer.data.size = 4096;
 	}
 
 	plFClose(realFile);
