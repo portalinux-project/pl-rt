@@ -1,5 +1,5 @@
 /**********************************************************\
- pl-rt, v0.05
+ pl-rt, v0.06.1
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-types.h: Types header and Error handler module header
 \**********************************************************/
@@ -15,10 +15,10 @@
 #include <stddef.h>
 #endif
 
-#define PLRT_VERSION "0.05"
+#define PLRT_VERSION "0.06.1"
 #define PLRT_API_VER 0
-#define PLRT_FEATURELVL 5
-#define PLRT_PATCHLVL 0
+#define PLRT_FEATURELVL 6
+#define PLRT_PATCHLVL 1
 #define UINT_SHIFT_LIMIT 63
 
 typedef uint8_t byte_t;
@@ -43,14 +43,16 @@ typedef enum plrtret {
 	PLRT_ALREADY_EXISTS = 7,
 	PLRT_NO_EXIST = 8,
 	PLRT_IOERR = 9,
+	PLRT_NOT_DIR = 10,
+	PLRT_NOT_FILE = 11,
 
-	PLRT_NOT_PLCHAR = 10,
-	PLRT_NOT_COMPRESSED = 11,
-	PLRT_MATCH_NOT_FOUND = 12,
+	PLRT_NOT_PLCHAR = 12,
+	PLRT_NOT_COMPRESSED = 13,
+	PLRT_MATCH_NOT_FOUND = 14,
 
-	PLRT_TOKENIZER_FAILURE = 13,
-	PLRT_TOKENIZER_WTF = 14,
-	PLRT_INVALID_TOKEN = 15
+	PLRT_TOKENIZER_FAILURE = 15,
+	PLRT_TOKENIZER_WTF = 16,
+	PLRT_INVALID_TOKEN = 17
 } plrtret_t;
 
 void plRTErrorString(plptr_t* buffer, plrtret_t errCode);

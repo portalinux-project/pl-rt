@@ -1,5 +1,5 @@
 /**************************************\
- pl-rt, v0.05
+ pl-rt, v0.06.1
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-error.c: Error handling module
 \**************************************/
@@ -51,6 +51,12 @@ void plRTErrorString(plptr_t* buffer, plrtret_t errCode){
 				break;
 			case PLRT_IOERR:
 				holderPtr = "Generic Input/Output Error";
+				break;
+			case PLRT_NOT_DIR:
+				holderPtr = "Not a directory";
+				break;
+			case PLRT_NOT_FILE:
+				holderPtr = "Not a file";
 				break;
 			case PLRT_NOT_PLCHAR:
 				holderPtr = "String is not a plChar String";

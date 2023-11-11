@@ -1,5 +1,5 @@
 /*******************************************\
- pl-rt, v0.05
+ pl-rt, v0.06.1
  (c) 2022-2023 pocketlinux32, Under MPL v2.0
  plrt-token.c: Parser/Tokenizer module
 \*******************************************/
