@@ -96,9 +96,11 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 			}
 
 			return retStr;
-		}else if(basicQuoteIsNotFirstChar || (literalBeforeBasicStr && literalQuoteIsNotFirstChar)){
+		}else if(arrayIsNotFirstChar || basicQuoteIsNotFirstChar || (literalBeforeBasicStr && literalQuoteIsNotFirstChar)){
 			startOffset = 0;
-			if(!literalBeforeBasicStr)
+			if(arrayBeforeStr)
+				endOffset = delimOffsets[2];
+			else if(!literalBeforeBasicStr)
 				endOffset = delimOffsets[0];
 			else
 				endOffset = delimOffsets[1];
@@ -137,7 +139,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 			leftoverStr->data.pointer = NULL;
 			leftoverStr->data.size = 0;
 		}else{
-			if((((char*)string.data.pointer)[endOffset] == '"' && basicQuoteIsNotFirstChar) || (((char*)string.data.pointer)[endOffset] == '\'' && literalQuoteIsNotFirstChar)){
+			if((((char*)string.data.pointer)[endOffset] == '"' && basicQuoteIsNotFirstChar) || (((char*)string.data.pointer)[endOffset] == '\'' && literalQuoteIsNotFirstChar) || (((char*)string.data.pointer)[endOffset] == '[' && arrayIsNotFirstChar)){
 				leftoverStr->data.pointer = string.data.pointer + endOffset;
 				leftoverStr->data.size = string.data.size - endOffset;
 			}else{
