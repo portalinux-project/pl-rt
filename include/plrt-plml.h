@@ -12,6 +12,7 @@ typedef enum plmltype {
 	PLML_TYPE_BOOL,
 	PLML_TYPE_FLOAT,
 	PLML_TYPE_STRING,
+	PLML_TYPE_ARRAY,
 	PLML_TYPE_HEADER
 } plmltype_t;
 
@@ -23,14 +24,18 @@ typedef union plmlval {
 	plptr_t array;
 } plmlval_t;
 
+typedef struct simpletoken {
+	plmltype_t type;
+	plmlval_t value;
+} plsimpletoken_t;
+
 typedef struct plmltoken {
 	plstring_t name;
 	plmltype_t type;
 	plmlval_t value;
-	bool isArray;
+//	bool isArray;
 	const plmt_t* const mt;
 } plmltoken_t;
 
 plmltoken_t plMLParse(plstring_t string, plmt_t* mt);
 void plMLFreeToken(plmltoken_t token);
-

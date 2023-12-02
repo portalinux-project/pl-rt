@@ -5,6 +5,66 @@
 \*******************************************/
 #include <plrt-plml.h>
 
+plsimpletoken_t plMLGetValue(plstring_t tokenStr, plmt_t* mt){
+	plsimpletoken_t retToken;
+	char* rawTokenStr = tokenStr.data.pointer;
+	char* leftoverStr = NULL;
+
+	retToken.type = PLML_TYPE_INT;
+	retToken.value.integer = strtol(rawTokenStr, &leftoverStr, 10);
+	if(leftoverStr != NULL && *leftoverStr != '\0'){
+		retToken.type = PLML_TYPE_FLOAT;
+		retToken.value.decimal = strtod(rawTokenStr, &leftoverStr);
+		if(leftoverStr != NULL && *leftoverStr != '\0'){
+			retToken.type = PLML_TYPE_BOOL;
+			if(strcmp(rawTokenStr, "true") == 0){
+				retToken.value.boolean = true;
+				plMTFree(mt, rawTokenStr);
+			}else if(strcmp(rawTokenStr, "false") == 0){
+				retToken.value.boolean = false;
+				plMTFree(mt, rawTokenStr);
+			}else{
+				retToken.type = PLML_TYPE_STRING;
+				retToken.value.string = tokenStr.data;
+			}
+		}else{
+			plMTFree(mt, rawTokenStr);
+		}
+	}else{
+		plMTFree(mt, rawTokenStr);
+	}
+
+	return retToken;
+}
+
+plptr_t plMLParseArray(plstring_t arrString, plmt_t* mt){
+	char* rawArrString = arrString.data.pointer;
+	plchar_t commaPLChar = {
+		.bytes = { ',', '\0', '\0', '\0' }
+	};
+
+	int64_t offsetHolder[2] = { -1, -1 };
+	while((offsetHolder[0] = plRTStrchr(arrString, commaPLChar, offsetHolder[1] + 1)) != -1){
+		rawArrString[offsetHolder[0]] = ' ';
+		offsetHolder[1] = offsetHolder[0];
+	}
+
+	arrString.data.pointer++;
+	arrString.data.size -= 2;
+	((char*)arrString.data.pointer)[arrString.data.size] = '\0';
+	plptr_t parsedArr = plRTParser(arrString, mt);
+	plptr_t retTokens = {
+		.pointer = plMTAlloc(mt, parsedArr.size * sizeof(plsimpletoken_t)),
+		.size = parsedArr.size
+	};
+
+	for(int i = 0; i < parsedArr.size; i++)
+		((plsimpletoken_t*)retTokens.pointer)[i] = plMLGetValue(((plstring_t*)parsedArr.pointer)[i], mt);
+
+	plMTFree(mt, arrString.data.pointer - 1);
+	return retTokens;
+}
+
 plptr_t plMLSanitize(plstring_t string, plmt_t* mt){
 	plptr_t retStr = plRTParser(string, mt);
 	plstring_t* retStrArr = retStr.pointer;
@@ -131,32 +191,15 @@ plmltoken_t plMLParse(plstring_t string, plmt_t* mt){
 	}else{
 		retToken.name = ((plstring_t*)tokenizedStr.pointer)[0];
 		plstring_t tokenStr = ((plstring_t*)tokenizedStr.pointer)[1];
-		char* rawTokenStr = tokenStr.data.pointer;
-		char* leftoverStr = NULL;
-
-		retToken.type = PLML_TYPE_INT;
-		retToken.value.integer = strtol(rawTokenStr, &leftoverStr, 10);
-		if(leftoverStr != NULL && *leftoverStr != '\0'){
-			retToken.type = PLML_TYPE_FLOAT;
-			retToken.value.decimal = strtod(rawTokenStr, &leftoverStr);
-			if(leftoverStr != NULL && *leftoverStr != '\0'){
-				retToken.type = PLML_TYPE_BOOL;
-				if(strcmp(rawTokenStr, "true") == 0){
-					retToken.value.boolean = true;
-					plMTFree(mt, rawTokenStr);
-				}else if(strcmp(rawTokenStr, "false") == 0){
-					retToken.value.boolean = false;
-					plMTFree(mt, rawTokenStr);
-				}else{
-					retToken.type = PLML_TYPE_STRING;
-					retToken.value.string = tokenStr.data;
-				}
-			}else{
-				plMTFree(mt, rawTokenStr);
-			}
+		if(*((char*)tokenStr.data.pointer) == '['){
+			retToken.type = PLML_TYPE_ARRAY;
+			retToken.value.array = plMLParseArray(tokenStr, mt);
 		}else{
-			plMTFree(mt, rawTokenStr);
+			plsimpletoken_t simpleToken = plMLGetValue(tokenStr, mt);
+			retToken.type = simpleToken.type;
+			retToken.value = simpleToken.value;
 		}
+
 
 		plMTFree(mt, tokenizedStr.pointer);
 	}

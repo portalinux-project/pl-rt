@@ -318,6 +318,34 @@ int plMLTest(char* customFile, plmt_t* mt){
 			case PLML_TYPE_FLOAT:
 				printf("Float\n");
 				printf("Value: %f\n\n", parsedToken.value.decimal);
+				break;
+			case PLML_TYPE_ARRAY:
+				printf("Array\n");
+				printf("Size: %ld\n", parsedToken.value.array.size);
+				for(int i = 0; i < parsedToken.value.array.size; i++){
+					plsimpletoken_t* rawArrayValues = parsedToken.value.array.pointer;
+					printf("Value %d: ", i + 1);
+					switch(rawArrayValues[i].type){
+						case PLML_TYPE_STRING:
+							printf("(String) %s\n", (char*)rawArrayValues[i].value.string.pointer);
+							break;
+						case PLML_TYPE_BOOL:
+							printf("(Boolean) ");
+							if(rawArrayValues[i].value.boolean)
+								printf("True\n");
+							else
+								printf("False\n");
+							break;
+						case PLML_TYPE_INT:
+							printf("(Integer) %li\n", rawArrayValues[i].value.integer);
+							break;
+						case PLML_TYPE_FLOAT:
+							printf("(Float) %f\n", rawArrayValues[i].value.decimal);
+							break;
+						default: ;
+					}
+				}
+				break;
 			default: ;
 		}
 
