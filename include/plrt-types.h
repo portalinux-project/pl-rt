@@ -1,5 +1,5 @@
 /**********************************************************\
- pl-rt, v0.06.1
+ pl-rt, v1.00
  (c) 2023 pocketlinux32, Under MPL v2.0
  plrt-types.h: Types header and Error handler module header
 \**********************************************************/
@@ -15,10 +15,10 @@
 #include <stddef.h>
 #endif
 
-#define PLRT_VERSION "0.06.1"
-#define PLRT_API_VER 0
-#define PLRT_FEATURELVL 6
-#define PLRT_PATCHLVL 1
+#define PLRT_VERSION "1.00"
+#define PLRT_API_VER 1
+#define PLRT_FEATURELVL 0
+#define PLRT_PATCHLVL 0
 #define UINT_SHIFT_LIMIT 63
 
 typedef uint8_t byte_t;

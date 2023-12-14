@@ -9,6 +9,9 @@ It is a heavily modified fork of pl32lib-ng release 1.06
 
 # Build instructions
 
+**NOTICE: Unlike pl32lib-ng, pl-rt has a hard dependency on POSIX APIs, so it
+must be built with Cygwin or under WSL when targeting Windows**
+
 Currently, it imports the old POSIX shell-based pl32lib-ng build system, but I
 may bring back the Meson build system files.
 
