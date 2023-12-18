@@ -155,17 +155,17 @@ int plFGetC(plfile_t* stream){
 }
 
 /* Puts a string into the file stream */
-int plFPuts(plstring_t* string, plfile_t* stream){
-	if(stream == NULL || string == NULL || string->data.pointer == NULL)
+int plFPuts(plstring_t string, plfile_t* stream){
+	if(stream == NULL || string.data.pointer == NULL)
 		plRTPanic("plFPuts", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	if(stream->fileptr == NULL){
-		if(plFWrite(string->data, stream))
+		if(plFWrite(string.data, stream))
 			return 0;
 
 		return 1;
 	}else{
-		return fputs(string->data.pointer, stream->fileptr);
+		return fputs(string.data.pointer, stream->fileptr);
 	}
 }
 

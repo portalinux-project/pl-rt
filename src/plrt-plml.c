@@ -37,7 +37,10 @@ plsimpletoken_t plMLGetValue(plstring_t tokenStr, plmt_t* mt){
 	return retToken;
 }
 
-plptr_t plMLParseArray(plstring_t arrString, plmt_t* mt){
+plmltoken_t plMLParseArray(plstring_t tokenName, plstring_t arrString, plmt_t* mt){
+	plmltoken_t retToken;
+	retToken.name = tokenName;
+
 	char* rawArrString = arrString.data.pointer;
 	plchar_t commaPLChar = {
 		.bytes = { ',', '\0', '\0', '\0' }
@@ -53,16 +56,41 @@ plptr_t plMLParseArray(plstring_t arrString, plmt_t* mt){
 	arrString.data.size -= 2;
 	((char*)arrString.data.pointer)[arrString.data.size] = '\0';
 	plptr_t parsedArr = plRTParser(arrString, mt);
-	plptr_t retTokens = {
-		.pointer = plMTAlloc(mt, parsedArr.size * sizeof(plsimpletoken_t)),
-		.size = parsedArr.size
-	};
+	plsimpletoken_t arrMember = plMLGetValue(((plstring_t*)parsedArr.pointer)[0], mt)
+	retToken.type = arrMember.type;
 
-	for(int i = 0; i < parsedArr.size; i++)
-		((plsimpletoken_t*)retTokens.pointer)[i] = plMLGetValue(((plstring_t*)parsedArr.pointer)[i], mt);
+	size_t memberSize = 0;
+	switch(retToken.type){
+		case PLML_TYPE_INT: ;
+			memberSize = sizeof(long);
+			retToken.value.array.pointer = plMTAlloc(mt, 2 * memberSize);
+			((long*)retToken.value.array.pointer)[0] = arrMember.value;
+			break;
+		case PLML_TYPE_BOOL: ;
+			memberSize = sizeof(bool);
+			retToken.value.array.pointer = plMTAlloc(mt, 2 * memberSize);
+			((bool*)retToken.value.array.pointer)[0] = arrMember.value;
+			break;
+		case PLML_TYPE_FLOAT: ;
+			memberSize = sizeof(double);
+			retToken.value.array.pointer = plMTAlloc(mt, 2 * memberSize);
+			((double*)retToken.value.array.pointer)[0] = arrMember.value;
+			break;
+		case PLML_TYPE_STRING: ;
+			memberSize = sizeof(plptr_t);
+			retToken.value.array.pointer = plMTAlloc(mt, 2 * memberSize);
+			((plptr_t*)retToken.value.array.pointer)[0] = arrMember.value;
+			break;
+		default: ;
+	}
+	retToken.value.array.size = 1;
+
+	for(int i = 1; i < parsedArr.size; i++){
+		arrMember = plMLGetValue(((plstring_t*)parsedArr.pointer)[i], mt);
+	}
 
 	plMTFree(mt, arrString.data.pointer - 1);
-	return retTokens;
+	return retToken;
 }
 
 plptr_t plMLSanitize(plstring_t string, plmt_t* mt){
@@ -192,8 +220,7 @@ plmltoken_t plMLParse(plstring_t string, plmt_t* mt){
 		retToken.name = ((plstring_t*)tokenizedStr.pointer)[0];
 		plstring_t tokenStr = ((plstring_t*)tokenizedStr.pointer)[1];
 		if(*((char*)tokenStr.data.pointer) == '['){
-			retToken.type = PLML_TYPE_ARRAY;
-			retToken.value.array = plMLParseArray(tokenStr, mt);
+			retToken = plMLParseArray(retToken.name, tokenStr, mt);
 		}else{
 			plsimpletoken_t simpleToken = plMLGetValue(tokenStr, mt);
 			retToken.type = simpleToken.type;
@@ -209,6 +236,6 @@ plmltoken_t plMLParse(plstring_t string, plmt_t* mt){
 
 void plMLFreeToken(plmltoken_t token){
 	plMTFree((plmt_t*)token.mt, token.name.data.pointer);
-	if(token.type == PLML_TYPE_STRING)
+	if(token.type == PLML_TYPE_STRING && token.isArray = false)
 		plMTFree((plmt_t*)token.mt, token.value.string.pointer);
 }

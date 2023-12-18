@@ -6,6 +6,8 @@
 
 bool nonInteractive = false;
 
+void signalHandler(int signal){}
+
 void printArray(int* array, size_t size){
 	printf("Printing out array:\n");
 	for(int i = 0; i < size; i++){
@@ -214,8 +216,7 @@ int plRTFileTest(char* customFile, plmt_t* mt){
 	}
 
 	printf("Reading and writing to file-in-memory...");
-	plstring_t memString = plRTStrFromCStr("test string getting sent to the yes\nnano", NULL);
-	plFPuts(&memString, memFile);
+	plFPuts(plRTStrFromCStr("test string getting sent to the yes\nnano", NULL), memFile);
 	plFSeek(memFile, 0, SEEK_SET);
 	printf("Done\n");
 	printf("Contents of file-in-memory:\n");
