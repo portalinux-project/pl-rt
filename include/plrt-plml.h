@@ -12,7 +12,6 @@ typedef enum plmltype {
 	PLML_TYPE_BOOL,
 	PLML_TYPE_FLOAT,
 	PLML_TYPE_STRING,
-	PLML_TYPE_ARRAY,
 	PLML_TYPE_HEADER
 } plmltype_t;
 
@@ -33,7 +32,7 @@ typedef struct plmltoken {
 	plstring_t name;
 	plmltype_t type;
 	plmlval_t value;
-//	bool isArray;
+	bool isArray;
 	const plmt_t* const mt;
 } plmltoken_t;
 

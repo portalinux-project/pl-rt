@@ -9,4 +9,4 @@ testAttrib7= true
 testAttrib8="string"
 testAttrib9 ="string"
 testAttrib10='string'
-testAttrib11=[ "nano", 123, 'a' ]
+testAttrib11=[ "nano", 'a' ]
