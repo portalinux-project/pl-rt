@@ -79,17 +79,28 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 	char filename[256] = "";
 	struct stat dirExist;
 
+	if(getuid() != 0){
+		char* homePath = getenv("HOME");
+		strcpy(path, homePath);
+		strcat(path, "/.cache/");
+		if(stat(path, &dirExist) == -1)
+			mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	}
+
 	snprintf(filename, 256, "/%ld.log", time(NULL));
 	if(prefix != NULL)
 		strcat(path, prefix);
 
 	if(stat(path, &dirExist) == -1)
-		mkdir(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	strcat(path, filename);
 
 	plfile_t* retFile = plFOpen(path, "a", mt);
 
 	plFPuts(plRTStrFromCStr("[INFO]: PortaLinux Logger, Version 1.00. (c)2023 pocketlinux32, under MPL 2.0\n", NULL), retFile);
+	plFPuts(plRTStrFromCStr("[INFO]: Log file located in ", NULL), retFile);
+	plFPuts(plRTStrFromCStr(path, NULL), retFile);
+	plFPuts(plRTStrFromCStr("\n", NULL), retFile);
 	return retFile;
 }
 

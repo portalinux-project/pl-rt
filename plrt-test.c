@@ -381,11 +381,21 @@ int plMLTest(char* customFile, plmt_t* mt){
 	return 0;
 }
 
+int plRTLogTest(plmt_t* mt){
+	plfile_t* logFile = plRTLogStart("plrt-test", mt);
+	plRTLog(logFile, LOG_DEBUG, plRTStrFromCStr("Debug test", NULL));
+	plRTLog(logFile, LOG_INFO, plRTStrFromCStr("Info test", NULL));
+	plRTLog(logFile, LOG_WARNING, plRTStrFromCStr("Warning test", NULL));
+	plRTLog(logFile, LOG_ERROR, plRTStrFromCStr("Error test", NULL));
+	plRTLogStop(logFile);
+	return 0;
+}
+
 int main(int argc, char* argv[]){
 	plmt_t* mainMT = plMTInit(8 * 1024 * 1024);
 
 	if(argc < 2){
-		printf("Valid test values:\n memory-test\n file-test\n string-test\n token-test\n plml-test\n");
+		printf("Valid test values:\n memory-test\n file-test\n string-test\n token-test\n plml-test\n log-test\n");
 		return 1;
 	}
 
@@ -408,6 +418,8 @@ int main(int argc, char* argv[]){
 			return plMLTest(argv[2], mainMT);
 
 		return plMLTest(NULL, mainMT);
+	}else if(strcmp(argv[1], "log-test") == 0){
+		return plRTLogTest(mainMT);
 	}else{
 		return 1;
 	}
