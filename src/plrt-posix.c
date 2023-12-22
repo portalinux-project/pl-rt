@@ -88,8 +88,10 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 	}
 
 	snprintf(filename, 256, "/%ld.log", time(NULL));
-	if(prefix != NULL)
+	if(prefix != NULL){
+		strcat(path, "/");
 		strcat(path, prefix);
+	}
 
 	if(stat(path, &dirExist) == -1)
 		mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);

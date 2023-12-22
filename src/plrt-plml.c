@@ -266,6 +266,14 @@ plmltoken_t plMLParse(plstring_t string, plmt_t* mt){
 
 void plMLFreeToken(plmltoken_t token){
 	plMTFree((plmt_t*)token.mt, token.name.data.pointer);
-	if(token.type == PLML_TYPE_STRING && token.isArray == false)
+	if(token.isArray){
+		if(token.type == PLML_TYPE_STRING){
+			for(int i = 0; i < token.value.array.size; i++)
+				plMTFree((plmt_t*)token.mt, ((plptr_t*)token.value.array.pointer)[i].pointer);
+		}
+
+		plMTFree((plmt_t*)token.mt, token.value.array.pointer);
+	}else if(token.type == PLML_TYPE_STRING){
 		plMTFree((plmt_t*)token.mt, token.value.string.pointer);
+	}
 }

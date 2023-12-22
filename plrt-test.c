@@ -306,8 +306,10 @@ int plMLTest(char* customFile, plmt_t* mt){
 				if(parsedToken.isArray){
 					printf("Size: %ld\n", parsedToken.value.array.size);
 					plptr_t* rawStringArray = parsedToken.value.array.pointer;
-					for(int i = 0; i < parsedToken.value.array.size; i++)
+					for(int i = 0; i < parsedToken.value.array.size - 1; i++)
 						printf("Value %d: %s\n", i + 1, (char*)rawStringArray[i].pointer);
+
+					printf("Value %ld: %s\n\n", parsedToken.value.array.size, (char*)rawStringArray[parsedToken.value.array.size - 1].pointer);
 				}else{
 					printf("Value: %s\n\n", (char*)parsedToken.value.string.pointer);
 				}
@@ -321,13 +323,19 @@ int plMLTest(char* customFile, plmt_t* mt){
 				if(parsedToken.isArray){
 					printf("Size: %ld\n", parsedToken.value.array.size);
 					bool* rawBoolArray = parsedToken.value.array.pointer;
-					for(int i = 0; i < parsedToken.value.array.size; i++){
+					for(int i = 0; i < parsedToken.value.array.size - 1; i++){
 						printf("Value %d: ", i + 1);
 						if(rawBoolArray[i])
 							printf("True\n");
 						else
 							printf("False\n");
 					}
+
+					printf("Value %ld: ", parsedToken.value.array.size);
+					if(rawBoolArray[parsedToken.value.array.size - 1])
+						printf("True\n\n");
+					else
+						printf("False\n\n");
 				}else{
 					printf("Value: ");
 					if(parsedToken.value.boolean)
@@ -345,8 +353,10 @@ int plMLTest(char* customFile, plmt_t* mt){
 				if(parsedToken.isArray){
 					printf("Size: %ld\n", parsedToken.value.array.size);
 					long* rawIntArray = parsedToken.value.array.pointer;
-					for(int i = 0; i < parsedToken.value.array.size; i++)
+					for(int i = 0; i < parsedToken.value.array.size - 1; i++)
 						printf("Value %d: %li\n", i + 1, rawIntArray[i]);
+
+					printf("Value %ld: %li\n\n", parsedToken.value.array.size, rawIntArray[parsedToken.value.array.size - 1]);
 				}else{
 					printf("Value: %li\n\n", parsedToken.value.integer);
 				}
@@ -362,9 +372,11 @@ int plMLTest(char* customFile, plmt_t* mt){
 
 				if(parsedToken.isArray){
 					printf("Size: %ld\n", parsedToken.value.array.size);
-					double* rawDoubleArr = parsedToken.value.array.pointer;
-					for(int i = 0; i < parsedToken.value.array.size; i++)
-						printf("Value %d: %f\n", i + 1, rawDoubleArr[i]);
+					double* rawDoubleArray = parsedToken.value.array.pointer;
+					for(int i = 0; i < parsedToken.value.array.size - 1; i++)
+						printf("Value %d: %f\n", i + 1, rawDoubleArray[i]);
+
+					printf("Value %ld: %f\n\n", parsedToken.value.array.size, rawDoubleArray[parsedToken.value.array.size - 1]);
 				}else{
 					printf("Value: %f\n\n", parsedToken.value.decimal);
 				}
