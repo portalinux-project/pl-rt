@@ -41,7 +41,7 @@ int plRTSpawn(plptr_t args){
 
 
 int plRTSortDirents(const void* string1, const void* string2){
-	return plRTStrcmp(*(plstring_t*)string1, *(plstring_t*)string2);
+	return plRTStrcmpForAlphaSort(*(plstring_t*)string1, *(plstring_t*)string2);
 }
 
 plptr_t plRTGetDirents(char* path, plmt_t* mt){
