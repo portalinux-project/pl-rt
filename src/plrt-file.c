@@ -256,3 +256,8 @@ size_t plFTell(plfile_t* stream){
 		return ftell(stream->fileptr);
 	}
 }
+
+void plFFlush(plfile_t* stream){
+	if(stream->fileptr != NULL)
+		fflush(stream->fileptr);
+}

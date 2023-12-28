@@ -25,3 +25,4 @@ int plFGets(plstring_t* string, plfile_t* stream);
 
 int plFSeek(plfile_t* stream, long int offset, int whence);
 size_t plFTell(plfile_t* stream);
+void plFFlush(plfile_t* stream);

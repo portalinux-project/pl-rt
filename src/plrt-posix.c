@@ -23,15 +23,15 @@ void plRTSetSignal(int signal){
 }
 
 int plRTSpawn(plptr_t args){
+	char* rawArgs[args.size + 1];
+	for(int i = 0; i < args.size; i++)
+		rawArgs[i] = ((plstring_t*)args.pointer)[i].data.pointer;
+	rawArgs[args.size] = NULL;
+
+	char buffer[256];
 	pid_t exec = fork();
 	if(exec == 0){
 		sleep(1);
-		char* rawArgs[args.size + 1];
-		for(int i = 0; i < args.size; i++)
-			rawArgs[i] = ((plstring_t*)args.pointer)[i].data.pointer;
-		rawArgs[args.size] = NULL;
-
-		char buffer[256];
 		execv(realpath(rawArgs[0], buffer), rawArgs);
 
 		plRTPanic("plRTSpawn", PLRT_ERROR | PLRT_ERRNO | errno, false);
@@ -87,7 +87,9 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 			mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	}
 
-	snprintf(filename, 256, "/%ld.log", time(NULL));
+	struct timespec buffer;
+	clock_gettime(CLOCK_REALTIME, &buffer);
+	snprintf(filename, 256, "/%ld-%ld.log", buffer.tv_sec, buffer.tv_nsec);
 	if(prefix != NULL){
 		strcat(path, "/");
 		strcat(path, prefix);
@@ -103,6 +105,7 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 	plFPuts(plRTStrFromCStr("[INFO]: Log file located in ", NULL), retFile);
 	plFPuts(plRTStrFromCStr(path, NULL), retFile);
 	plFPuts(plRTStrFromCStr("\n", NULL), retFile);
+	plFFlush(retFile);
 	return retFile;
 }
 
