@@ -138,6 +138,7 @@ void plRTLog(plfile_t* logFile, plloglevel_t logLevel, plstring_t string){
 	string.data = holderPtr;
 	plFPuts(string, logFile);
 	plFPuts(plRTStrFromCStr("\n", NULL), logFile);
+	plFFlush(retFile);
 }
 
 void plRTLogStop(plfile_t* logFile){
