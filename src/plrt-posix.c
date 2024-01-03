@@ -31,7 +31,12 @@ int plRTSpawn(plptr_t args){
 	char buffer[256];
 	pid_t exec = fork();
 	if(exec == 0){
-		sleep(1);
+		struct timespec sleepconst = {
+			.tv_sec = 0,
+			.tv_nsec = 1000
+		};
+		struct timespec buf;
+		nanosleep(&sleepconst, &buf);
 		execv(realpath(rawArgs[0], buffer), rawArgs);
 
 		plRTPanic("plRTSpawn", PLRT_ERROR | PLRT_ERRNO | errno, false);
