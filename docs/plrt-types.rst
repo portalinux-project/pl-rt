@@ -23,24 +23,23 @@ Custom Types
 * ``memptr_t``: A generic memory pointer, typedef'd to ``void*``.
 * ``plptr_t``: A struct meant to be a Rust-like representation of a pointer. It consists of members ``pointer`` and ``size``
 * ``plrtret_t``: An enum representing all Runtime-specific errors. All valid error codes must have ``PLRT_ERROR`` bitwise OR'd into the code. All of the errors are as follows:
-  * ``PLRT_OOM``: All of the memory in the memory tracker has been exhausted
-  * ``PLRT_FAILED_ALLOC``: Falied to allocate memory
-  * ``PLRT_INVALID_PTR``: Invalid pointer address
-  * ``PLRT_NULL_PTR``: The pointer given was a NULL pointer
-  * ``PLRT_ACCESS``: Insufficient permissions to open a file
-  * ``PLRT_INVALID_MODE``: Invalid file opening mode
-  * ``PLRT_ALREADY_EXISTS``: File exists and cannot be overwritten
-  * ``PLRT_NO_EXIST``: File doesn't exist
-  * ``PLRT_IOERR``: Generic I/O error
-  * ``PLRT_NOT_DIR``: Not a directory
-  * ``PLRT_NOT_FILE``: Is a directory
-  * ``PLRT_NOT_PLCHAR``: Runtime String is not in plchar format
-  * ``PLRT_NOT_COMPRESSED``: Runtime String is not in compressed/raw format
-  * ``PLRT_MATCH_NOT_FOUND``: Pattern could not be matched to the string given
-  * ``PLRT_TOKENIZER_FAILURE``: Tokenizer could not generate a token out of given string
-  * ``PLRT_TOKENIZER_WTF``: Either the system is next to an EMP or you're messing around with a debugger
-(if that's the case, get back to work dingus x3)
-  * ``PLRT_INVALID_TOKEN``: Invalid PLML token
+    * ``PLRT_OOM``: All of the memory in the memory tracker has been exhausted
+    * ``PLRT_FAILED_ALLOC``: Falied to allocate memory
+    * ``PLRT_INVALID_PTR``: Invalid pointer address
+    * ``PLRT_NULL_PTR``: The pointer given was a NULL pointer
+    * ``PLRT_ACCESS``: Insufficient permissions to open a file
+    * ``PLRT_INVALID_MODE``: Invalid file opening mode
+    * ``PLRT_ALREADY_EXISTS``: File exists and cannot be overwritten
+    * ``PLRT_NO_EXIST``: File doesn't exist
+    * ``PLRT_IOERR``: Generic I/O error
+    * ``PLRT_NOT_DIR``: Not a directory
+    * ``PLRT_NOT_FILE``: Is a directory
+    * ``PLRT_NOT_PLCHAR``: Runtime String is not in plchar format
+    * ``PLRT_NOT_COMPRESSED``: Runtime String is not in compressed/raw format
+    * ``PLRT_MATCH_NOT_FOUND``: Pattern could not be matched to the string given
+    * ``PLRT_TOKENIZER_FAILURE``: Tokenizer could not generate a token out of given string
+    * ``PLRT_TOKENIZER_WTF``: Either the system is next to an EMP or you're messing around with a debugger (if that's the case, get back to work dingus x3)
+    * ``PLRT_INVALID_TOKEN``: Invalid PLML token
 
 Functions
 =========
