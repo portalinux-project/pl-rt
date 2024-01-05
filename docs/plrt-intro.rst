@@ -11,6 +11,7 @@ Standard Library that supports both C11 and POSIX-2008.
 Documentation Pages
 ###################
 
+* `Types and Error Handling API`_
 * `Memory Tracker API`_
 * `File Operations API`_
 * `String Operations API`_
@@ -18,6 +19,7 @@ Documentation Pages
 * `Logger API`_
 * `Misc POSIX API`_
 
+.. _`Types and Error Handling API`: plrt-types.rst
 .. _`Memory Tracker API`: plrt-memory.rst
 .. _`File Operations API`: plrt-file.rst
 .. _`String Operations API`: plrt-string.rst
