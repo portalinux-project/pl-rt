@@ -1,0 +1,26 @@
+******************************************
+The PortaLinux Runtime v1.00 Documentation
+******************************************
+
+The PortaLinux Runtime is the runtime library for the PortaLinux Operating System, typically used for its init system.
+
+The Runtime consists of a memory tracker, a string tokenizer, Rust-style strings with Unicode support, memory-backed
+files , a logger, and some other miscellaneous POSIX routines. It only depends on a compiler that supports C99 and a C
+Standard Library that supports both C11 and POSIX-2008.
+
+Documentation Pages
+###################
+
+* Memory Tracker API_
+* File Operations API_
+* String Operations API_
+* Tokenizer API_
+* Logger API_
+* Misc POSIX API_
+
+.. _`Memory Tracker API`: plrt-memory.rst
+.. _`File Operations API`: plrt-file.rst
+.. _`String Operations API`: plrt-string.rst
+.. _`Tokenizer API`: plrt-token.rst
+.. _`Logger API`: plrt-logger.rst
+.. _`Misc POSIX API`: plrt-misc-posix.rst
