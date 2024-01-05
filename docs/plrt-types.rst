@@ -21,10 +21,8 @@ Custom Types
 
 * ``byte_t``: An unsigned byte, typedef'd to ``uint8_t``.
 * ``memptr_t``: A generic memory pointer, typedef'd to ``void*``.
-* ``plptr_t``: A struct meant to be a Rust-like representation of a pointer. It consists of members ``pointer`` and
-``size``
-* ``plrtret_t``: An enum representing all Runtime-specific errors. All valid error codes must have ``PLRT_ERROR``
-bitwise OR'd into the code. All of the errors are as follows:
+* ``plptr_t``: A struct meant to be a Rust-like representation of a pointer. It consists of members ``pointer`` and ``size``
+* ``plrtret_t``: An enum representing all Runtime-specific errors. All valid error codes must have ``PLRT_ERROR`` bitwise OR'd into the code. All of the errors are as follows:
   * ``PLRT_OOM``: All of the memory in the memory tracker has been exhausted
   * ``PLRT_FAILED_ALLOC``: Falied to allocate memory
   * ``PLRT_INVALID_PTR``: Invalid pointer address
@@ -47,8 +45,5 @@ bitwise OR'd into the code. All of the errors are as follows:
 Functions
 =========
 
-* ``void plRTErrorString(plptr_t* buffer, plrtret_t errCode)``: Copies a pointer to an internal static error string
-based in ``errCode`` into ``buffer``. Meant to be used for printing out errors
-* ``void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug)``: Prints out ``msg``, an error string gotten
-from ``plRTErrorString`` and then a bug disclaimer if ``isDeveloperBug`` is true. It sends an abort signal to the program
-and terminates the process
+* ``void plRTErrorString(plptr_t* buffer, plrtret_t errCode)``: Copies a pointer to an internal static error string based in ``errCode`` into ``buffer``. Meant to be used for printing out errors
+* ``void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug)``: Prints out ``msg``, an error string gotten from ``plRTErrorString`` and then a bug disclaimer if ``isDeveloperBug`` is true. It sends an abort signal to the program and terminates the process
