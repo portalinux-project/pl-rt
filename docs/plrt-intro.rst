@@ -11,12 +11,12 @@ Standard Library that supports both C11 and POSIX-2008.
 Documentation Pages
 ###################
 
-* Memory Tracker API_
-* File Operations API_
-* String Operations API_
-* Tokenizer API_
-* Logger API_
-* Misc POSIX API_
+* `Memory Tracker API`_
+* `File Operations API`_
+* `String Operations API`_
+* `Tokenizer API`_
+* `Logger API`_
+* `Misc POSIX API`_
 
 .. _`Memory Tracker API`: plrt-memory.rst
 .. _`File Operations API`: plrt-file.rst
