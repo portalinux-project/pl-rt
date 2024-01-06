@@ -44,5 +44,5 @@ Custom Types
 Functions
 =========
 
-* ``void plRTErrorString(plptr_t* buffer, plrtret_t errCode)``: Copies a pointer to an internal static error string based in ``errCode`` into ``buffer``. Meant to be used for printing out errors
-* ``void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug)``: Prints out ``msg``, an error string gotten from ``plRTErrorString`` and then a bug disclaimer if ``isDeveloperBug`` is true. It sends an abort signal to the program and terminates the process
+* ``void plRTErrorString(plptr_t* buffer, plrtret_t errCode)``: Copies a pointer to an internal static error string based in ``errCode`` into ``buffer``. Meant to be used for printing out errors.
+* ``void plRTPanic(char* msg, plrtret_t errCode, bool isDeveloperBug)``: Prints out ``msg``, an error string gotten from ``plRTErrorString`` and then a bug disclaimer if ``isDeveloperBug`` is true. It sends an abort signal to the program and terminates the process.

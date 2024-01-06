@@ -13,16 +13,16 @@ Documentation Pages
 
 * `Types and Error Handling API`_
 * `Memory Tracker API`_
-* `File Operations API`_
 * `String Operations API`_
+* `File Operations API`_
 * `Tokenizer API`_
 * `Logger API`_
 * `Misc POSIX API`_
 
 .. _`Types and Error Handling API`: plrt-types.rst
 .. _`Memory Tracker API`: plrt-memory.rst
-.. _`File Operations API`: plrt-file.rst
 .. _`String Operations API`: plrt-string.rst
+.. _`File Operations API`: plrt-file.rst
 .. _`Tokenizer API`: plrt-token.rst
 .. _`Logger API`: plrt-logger.rst
 .. _`Misc POSIX API`: plrt-misc-posix.rst
