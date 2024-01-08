@@ -91,22 +91,20 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 	plCharStr->mt = mt;
 }
 
-bool plRTIsMemPatternDiff(uint8_t* mainPtr, plptr_t searchPtr){
-	bool isDiff = false;
+int64_t plRTIsMemPatternDiff(uint8_t* mainPtr, plptr_t searchPtr){
+	int64_t isDiff = -1;
 	uint8_t* rawSearchPtr = searchPtr.pointer;
 
 	if(*mainPtr == *rawSearchPtr){
 		for(int j = 1; j < searchPtr.size; j++){
 			if(*(mainPtr + j) != *(rawSearchPtr + j)){
-				isDiff = true;
+				isDiff = j;
 				j = searchPtr.size;
 			}
 		}
-
-		return isDiff;
 	}
 
-	return true;
+	return isDiff;
 }
 
 memptr_t plRTMemMatch(plptr_t memBlock1, plptr_t memBlock2){
@@ -114,7 +112,7 @@ memptr_t plRTMemMatch(plptr_t memBlock1, plptr_t memBlock2){
 		plRTPanic("plRTMemMatch", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	for(int i = 0; i <= memBlock1.size - memBlock2.size; i++){
-		if(!plRTIsMemPatternDiff(memBlock1.pointer + i, memBlock2))
+		if(plRTIsMemPatternDiff(memBlock1.pointer + i, memBlock2) == -1)
 			return memBlock1.pointer + i;
 	}
 
@@ -122,36 +120,16 @@ memptr_t plRTMemMatch(plptr_t memBlock1, plptr_t memBlock2){
 }
 
 int plRTStrcmp(plstring_t string1, plstring_t string2){
-	if(string1.data.size > string2.data.size)
-		return ((uint8_t*)string1.data.pointer)[string2.data.size - 1];
-	else if(string1.data.size < string2.data.size)
-		return ((uint8_t*)string2.data.pointer)[string1.data.size - 1];
+	memptr_t holderPtr = NULL;
+	if(string1.data.size < string2.data.size)
+		holderPtr = string2.data.pointer;
 
-	bool diffChar = plRTIsMemPatternDiff(string1.data.pointer, string2.data);
-	if(diffChar)
+	int64_t diffChar = plRTIsMemPatternDiff(string1.data.pointer, string2.data);
+	if(diffChar != -1)
 		return ((uint8_t*)string1.data.pointer)[diffChar] - ((uint8_t*)string2.data.pointer)[diffChar];
 
-	return 0;
-}
-
-int plRTStrcmpForAlphaSort(plstring_t string1, plstring_t string2){
-	plptr_t holderPtr = {
-		.pointer = NULL,
-		.size = 0
-	};
-	if(string1.data.size < string2.data.size){
-		holderPtr = string2.data;
-		string2.data.size = string1.data.size;
-	}
-
-	bool diffChar = plRTIsMemPatternDiff(string1.data.pointer, string2.data);
-	if(diffChar)
-		return ((uint8_t*)string1.data.pointer)[diffChar] - ((uint8_t*)string2.data.pointer)[diffChar];
-
-	if(holderPtr.pointer != NULL){
-		string2.data = holderPtr;
-		return ((uint8_t*)string2.data.pointer)[string1.data.size - 1];
-	}
+	if(holderPtr != NULL)
+		return -((uint8_t*)string2.data.pointer)[string1.data.size - 1];
 
 	return 0;
 }
@@ -186,7 +164,7 @@ int64_t plRTStrstr(plstring_t string1, plstring_t string2, size_t startAt){
 
 	string1.data.pointer += startAt;
 	string1.data.size -= startAt;
-	memptr_t tempPtr = plRTMemMatch(string1.data, string2.data);
+	memptr_t tempPtr = plRTMemMatch(string2.data, string1.data);
 	int64_t retVar = -1;
 	string1.data.pointer -= startAt;
 
