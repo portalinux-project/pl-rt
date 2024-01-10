@@ -92,14 +92,17 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 }
 
 int64_t plRTIsMemPatternDiff(uint8_t* mainPtr, plptr_t searchPtr){
-	int64_t isDiff = -1;
+	int64_t isDiff = 0;
 	uint8_t* rawSearchPtr = searchPtr.pointer;
 
 	if(*mainPtr == *rawSearchPtr){
+		isDiff = -1;
 		for(int j = 1; j < searchPtr.size; j++){
 			if(*(mainPtr + j) != *(rawSearchPtr + j)){
 				isDiff = j;
 				j = searchPtr.size;
+			}else{
+				isDiff = -1;
 			}
 		}
 	}
@@ -164,7 +167,7 @@ int64_t plRTStrstr(plstring_t string1, plstring_t string2, size_t startAt){
 
 	string1.data.pointer += startAt;
 	string1.data.size -= startAt;
-	memptr_t tempPtr = plRTMemMatch(string2.data, string1.data);
+	memptr_t tempPtr = plRTMemMatch(string1.data, string2.data);
 	int64_t retVar = -1;
 	string1.data.pointer -= startAt;
 
