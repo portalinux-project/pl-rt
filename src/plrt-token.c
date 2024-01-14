@@ -71,7 +71,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 	bool basicQuoteIsNotFirstChar = (delimOffsets[0] > 0);
 	bool literalQuoteIsNotFirstChar = (delimOffsets[1] > 0);
 
-	if(noQuotesFound || (noEndArrayBracket && arrayBeforeStr) || (noEndQuoteBasic && !literalBeforeBasicStr) || (noEndQuoteLiteral && literalBeforeBasicStr) || spaceComesFirst){
+	if((noQuotesFound && delimOffsets[2] == -1) || (noEndArrayBracket && arrayBeforeStr) || (noEndQuoteBasic && !literalBeforeBasicStr) || (noEndQuoteLiteral && literalBeforeBasicStr) || spaceComesFirst){
 		retStr.data.pointer = &delimiters[4];
 		retStr.data.size = 2;
 		retStr.isplChar = true;
@@ -102,7 +102,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 			}
 
 			return retStr;
-		}else if(arrayIsNotFirstChar || basicQuoteIsNotFirstChar || (literalBeforeBasicStr && literalQuoteIsNotFirstChar)){
+		}else if((arrayIsNotFirstChar && arrayBeforeStr) || (literalBeforeBasicStr && literalQuoteIsNotFirstChar) || basicQuoteIsNotFirstChar){
 			startOffset = 0;
 			if(arrayBeforeStr)
 				endOffset = delimOffsets[2];
