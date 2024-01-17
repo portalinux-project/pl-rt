@@ -79,37 +79,21 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 		return plRTStrtok(string, retStr, leftoverStr, mt);
 	}else{
 		int64_t searchLimit = string.data.size;
-		int64_t startOffset = 1;
+		int64_t startOffset = 0;
 		int64_t endOffset = 0;
 
 		if(arrayBeforeStr && !arrayIsNotFirstChar && !noEndArrayBracket){
-			startOffset = 0;
-			endOffset = delimOffsets[3] + 1;
+			endOffset = delimOffsets[3];
 		}else if(literalBeforeBasicStr && !literalQuoteIsNotFirstChar && !noEndQuoteLiteral){
-			retStr.data.pointer = &delimiters[1];
-			retStr.data.size = 1;
-			retStr.isplChar = true;
-
-			retStr = plRTStrtok(string, retStr, leftoverStr, mt);
-			if(leftoverStr->data.pointer != NULL && (*((char*)leftoverStr->data.pointer) == ' ' || *((char*)leftoverStr->data.pointer) == '\n')){
-				leftoverStr->data.pointer++;
-				leftoverStr->data.size--;
-			}
-
-			if(leftoverStr->data.pointer == string.data.pointer + searchLimit){
-				leftoverStr->data.pointer = NULL;
-				leftoverStr->data.size = 0;
-			}
-
-			return retStr;
+			endOffset = quoteEndings[1];
 		}else if((arrayIsNotFirstChar && arrayBeforeStr) || (literalBeforeBasicStr && literalQuoteIsNotFirstChar) || basicQuoteIsNotFirstChar){
 			startOffset = 0;
 			if(arrayBeforeStr)
-				endOffset = delimOffsets[2];
+				endOffset = delimOffsets[2] - 1;
 			else if(!literalBeforeBasicStr)
-				endOffset = delimOffsets[0];
+				endOffset = delimOffsets[0] - 1;
 			else
-				endOffset = delimOffsets[1];
+				endOffset = delimOffsets[1] - 1;
 		}else{
 			endOffset = quoteEndings[0];
 			while(endOffset != -1 && ((char*)string.data.pointer)[endOffset - 1] == '\\')
@@ -119,13 +103,13 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 				plRTPanic("plRTTokenize", PLRT_ERROR | PLRT_TOKENIZER_WTF, true);
 		}
 
-		retStr.data.size = endOffset - startOffset;
+		retStr.data.size = endOffset + 1;
 		retStr.data.pointer = plMTAlloc(mt, retStr.data.size + 1);
 		memcpy(retStr.data.pointer, string.data.pointer + startOffset, retStr.data.size);
 		((char*)retStr.data.pointer)[retStr.data.size] = '\0';
 
 		int64_t escapedChars = plRTStrchr(retStr, delimiters[6], 0);
-		if(escapedChars != -1){
+		if(escapedChars != -1 && *((char*)retStr.data.pointer) == '"'){
 			while(escapedChars != -1){
 				memcpy(retStr.data.pointer + escapedChars, retStr.data.pointer + escapedChars + 1, retStr.data.size - escapedChars);
 				retStr.data.size--;
@@ -201,4 +185,16 @@ void plRTFreeParsedString(plptr_t stringArray){
 		plMTFree(mt, stringArrPtr[0].data.pointer);
 	}
 	plMTFree(mt, stringArrPtr);
+}
+
+void plRTExtractContents(plstring_t* string){
+	if(*((char*)string->data.pointer) == '"' || *((char*)string->data.pointer) == '\'' || *((char*)string->data.pointer) == '['){
+		memcpy(string->data.pointer, string->data.pointer + 1, string->data.size - 2);
+		memptr_t tempPtr = plMTRealloc(string->mt, string->data.pointer, string->data.size - 2);
+		if(tempPtr == NULL)
+			plRTPanic("plRTExtractContents", PLRT_ERROR | PLRT_NULL_PTR, false);
+		((char*)tempPtr)[string->data.size - 2] = '\0';
+		string->data.pointer = tempPtr;
+		string->data.size -= 2;
+	}
 }

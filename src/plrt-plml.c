@@ -24,6 +24,7 @@ plsimpletoken_t plMLGetValue(plstring_t tokenStr, plmt_t* mt){
 				retToken.value.boolean = false;
 				plMTFree(mt, rawTokenStr);
 			}else{
+				plRTExtractContents(&tokenStr);
 				retToken.type = PLML_TYPE_STRING;
 				retToken.value.string = tokenStr.data;
 			}
@@ -40,6 +41,7 @@ plsimpletoken_t plMLGetValue(plstring_t tokenStr, plmt_t* mt){
 plsimpletoken_t plMLParseArray(plstring_t tokenName, plstring_t arrString, plmt_t* mt){
 	plsimpletoken_t retToken;
 
+	plRTExtractContents(&arrString);
 	char* rawArrString = arrString.data.pointer;
 	plchar_t commaPLChar = {
 		.bytes = { ',', '\0', '\0', '\0' }
@@ -51,9 +53,6 @@ plsimpletoken_t plMLParseArray(plstring_t tokenName, plstring_t arrString, plmt_
 		offsetHolder[1] = offsetHolder[0];
 	}
 
-	arrString.data.pointer++;
-	arrString.data.size -= 2;
-	((char*)arrString.data.pointer)[arrString.data.size] = '\0';
 	plptr_t parsedArr = plRTParser(arrString, mt);
 	plsimpletoken_t arrMember = plMLGetValue(((plstring_t*)parsedArr.pointer)[0], mt);
 	retToken.type = arrMember.type;
