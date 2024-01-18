@@ -12,5 +12,5 @@ testAttrib10 ="string"
 testAttrib11='string'
 testAttrib12=["nano",'a']
 testAttrib13=[1234.0,12345.678]
-testAttrib14 = [ true, false, false, false ]
+testAttrib14 = [ true, false, true, false ]
 testAttrib15 = "[ nano ]"

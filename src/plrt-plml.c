@@ -85,7 +85,7 @@ plsimpletoken_t plMLParseArray(plstring_t tokenName, plstring_t arrString, plmt_
 
 	for(int i = 1; i < parsedArr.size; i++){
 		if(retToken.value.array.size > 1){
-			memptr_t tempPtr = plMTAlloc(mt, (retToken.value.array.size + 1) * memberSize);
+			memptr_t tempPtr = plMTRealloc(mt, retToken.value.array.pointer, (retToken.value.array.size + 1) * memberSize);
 			if(tempPtr == NULL)
 				plRTPanic("plMLParseArray", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
