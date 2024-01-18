@@ -19,6 +19,8 @@ Documentation Pages
 * `Logger API`_
 * `Misc POSIX API`_
 
+For more in-depth documentation, go to https://cinnamonwolfy.neocities.org/docs/pl-rt
+
 .. _`Types and Error Handling API`: plrt-types.rst
 .. _`Memory Tracker API`: plrt-memory.rst
 .. _`String Operations API`: plrt-string.rst
