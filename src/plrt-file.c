@@ -24,8 +24,8 @@ plfile_t* plFOpen(char* filename, char* mode, plmt_t* mt){
 	/* If no filename is given, set up a file in memory */
 	if(filename == NULL){
 		returnStruct->fileptr = NULL;
-		returnStruct->strbuf = plMTAlloc(mt, 4096);
-		returnStruct->bufsize = 4096;
+		returnStruct->strbuf = plMTAlloc(mt, 65536);
+		returnStruct->bufsize = 65536;
 	}else{
 		if(mode == NULL)
 			plRTPanic("plFOpen", PLRT_ERROR | PLRT_NULL_PTR, true);
@@ -59,18 +59,19 @@ plfile_t* plFToP(FILE* pointer, plmt_t* mt){
 }
 
 /* Closes a file stream */
-int plFClose(plfile_t* ptr){
-	if(ptr == NULL)
+int plFClose(plfile_t* stream){
+	if(stream == NULL)
 		return 1;
 
-	if(ptr->fileptr == NULL){
-		plMTFree(ptr->mtptr, ptr->strbuf);
-	}else{
-		if(fclose(ptr->fileptr))
+	if(stream->strbuf != NULL)
+		plMTFree(stream->mtptr, stream->strbuf);
+
+	if(stream->fileptr != NULL){
+		if(fclose(stream->fileptr))
 			return 1;
 	}
 
-	plMTFree(ptr->mtptr, ptr);
+	plMTFree(stream->mtptr, stream);
 	return 0;
 }
 
@@ -79,7 +80,7 @@ size_t plFRead(plptr_t ptr, plfile_t* stream){
 	if(stream == NULL || ptr.pointer == NULL)
 		plRTPanic("plFRead", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		if(ptr.size > stream->bufsize - stream->seekbyte){
 			if(stream->bufsize - stream->seekbyte)
 				return 0;
@@ -99,9 +100,9 @@ size_t plFWrite(plptr_t ptr, plfile_t* stream){
 	if(stream == NULL || ptr.pointer == NULL)
 		plRTPanic("plFWrite", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		if(ptr.size > stream->bufsize - stream->seekbyte){
-			void* tempPtr = plMTRealloc(stream->mtptr, stream->strbuf, stream->bufsize + ptr.size);
+			void* tempPtr = plMTRealloc(stream->mtptr, stream->strbuf, stream->seekbyte + ptr.size + 1);
 			if(tempPtr == NULL)
 				return 0;
 
@@ -120,7 +121,7 @@ int plFPutC(byte_t ch, plfile_t* stream){
 	if(stream == NULL)
 		return '\0';
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		if(stream->bufsize - stream->seekbyte < 1){
 			void* tempPtr = plMTRealloc(stream->mtptr, stream->strbuf, stream->bufsize + 1);
 
@@ -141,7 +142,7 @@ int plFGetC(plfile_t* stream){
 	if(stream == NULL)
 		return '\0';
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		byte_t ch = '\0';
 		if(stream->seekbyte > stream->bufsize){
 			ch = *(stream->strbuf + stream->seekbyte);
@@ -159,7 +160,7 @@ int plFPuts(plstring_t string, plfile_t* stream){
 	if(stream == NULL || string.data.pointer == NULL)
 		plRTPanic("plFPuts", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		if(plFWrite(string.data, stream))
 			return 0;
 
@@ -174,7 +175,7 @@ int plFGets(plstring_t* string, plfile_t* stream){
 	if(stream == NULL || string == NULL || string->data.pointer == NULL)
 		plRTPanic("plFGets", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		byte_t* endMark = (byte_t*)strchr((char*)stream->strbuf + stream->seekbyte, '\n');
 		unsigned int writeNum = 0;
 		if(endMark == NULL)
@@ -211,7 +212,7 @@ int plFSeek(plfile_t* stream, long int offset, int whence){
 	if(stream == NULL)
 		return 1;
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		switch(whence){
 			case SEEK_SET:
 				if(offset < stream->bufsize){
@@ -249,7 +250,7 @@ size_t plFTell(plfile_t* stream){
 	if(stream == NULL)
 		return 0;
 
-	if(stream->fileptr == NULL){
+	if(stream->strbuf != NULL){
 		return stream->seekbyte;
 	}else{
 		fflush(stream->fileptr);
@@ -257,7 +258,42 @@ size_t plFTell(plfile_t* stream){
 	}
 }
 
+/* Flushes a file stream */
 void plFFlush(plfile_t* stream){
 	if(stream->fileptr != NULL)
 		fflush(stream->fileptr);
+}
+
+/* Loads entire file into memory */
+void plFLoad(plfile_t* stream){
+	if(stream->fileptr == NULL)
+		return;
+
+	char buffer[4096] = "";
+	plptr_t pointerStruct = {
+		.pointer = NULL,
+		.size = 0
+	};
+
+	stream->strbuf = plMTAlloc(stream->mtptr, 65536);
+	stream->bufsize = 65536;
+
+	if(fgets(buffer, 4096, stream->fileptr) != NULL){
+		pointerStruct.pointer = buffer;
+		pointerStruct.size = strlen(buffer);
+		plFWrite(pointerStruct, stream);
+
+	}
+}
+
+/* Writes file-in-memory into physical file */
+void plFUnload(plfile_t* stream){
+	if(stream->fileptr == NULL || stream->strbuf == NULL)
+		return;
+
+	fseek(stream->fileptr, 0, SEEK_SET);
+	if(fwrite(stream->strbuf, stream->seekbyte + 1, 1, stream->fileptr) == -1)
+		plRTPanic("plFUnload", PLRT_ERROR | PLRT_IOERR, false);
+
+	plMTFree(stream->mtptr, stream->strbuf);
 }
