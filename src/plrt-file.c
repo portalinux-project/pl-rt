@@ -269,6 +269,8 @@ void plFLoad(plfile_t* stream){
 	if(stream->fileptr == NULL)
 		return;
 
+	freopen(NULL, "r", stream->fileptr);
+	fseek(stream->fileptr, 0, SEEK_SET);
 	char buffer[4096] = "";
 	plptr_t pointerStruct = {
 		.pointer = NULL,
@@ -291,6 +293,7 @@ void plFUnload(plfile_t* stream){
 	if(stream->fileptr == NULL || stream->strbuf == NULL)
 		return;
 
+	freopen(NULL, "w", stream->fileptr);
 	fseek(stream->fileptr, 0, SEEK_SET);
 	if(fwrite(stream->strbuf, stream->seekbyte + 1, 1, stream->fileptr) == -1)
 		plRTPanic("plFUnload", PLRT_ERROR | PLRT_IOERR, false);
