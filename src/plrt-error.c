@@ -1,6 +1,6 @@
 /**************************************\
- pl-rt, v1.00
- (c) 2023 pocketlinux32, Under MPL v2.0
+ pl-rt, v1.02
+ (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-error.c: Error handling module
 \**************************************/
 #include <plrt-types.h>

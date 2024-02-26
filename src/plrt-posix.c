@@ -1,6 +1,6 @@
 /**************************************\
- pl-rt, v1.00
- (c) 2023 pocketlinux32, Under MPL v2.0
+ pl-rt, v1.02
+ (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-posix.h: POSIX module
 \**************************************/
 
@@ -106,7 +106,7 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 
 	plfile_t* retFile = plFOpen(path, "a", mt);
 
-	plFPuts(plRTStrFromCStr("[INFO]: PortaLinux Logger, Version 1.00. (c)2023 pocketlinux32, under MPL 2.0\n", NULL), retFile);
+	plFPuts(plRTStrFromCStr("[INFO]: PortaLinux Logger, Version 1.02. (c)2024 CinnamonWolfy, under MPL 2.0\n", NULL), retFile);
 	plFPuts(plRTStrFromCStr("[INFO]: Log file located in ", NULL), retFile);
 	plFPuts(plRTStrFromCStr(path, NULL), retFile);
 	plFPuts(plRTStrFromCStr("\n", NULL), retFile);

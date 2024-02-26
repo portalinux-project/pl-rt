@@ -1,7 +1,7 @@
 /****************************************\
  pl32lib-ng, v1.06
  (c) 2022 pocketlinux32, Under MPL v2.0
- pl32.hpp: Base API header (C++ Bindings)
+ plrt.hpp: Base API header (C++ Bindings)
 \****************************************/
 
 #include <cstddef>
