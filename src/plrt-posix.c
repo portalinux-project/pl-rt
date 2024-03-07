@@ -35,8 +35,7 @@ int plRTSpawn(plptr_t args){
 			.tv_sec = 0,
 			.tv_nsec = 1000
 		};
-		struct timespec buf;
-		nanosleep(&sleepconst, &buf);
+		nanosleep(&sleepconst, NULL);
 		execv(realpath(rawArgs[0], buffer), rawArgs);
 
 		plRTPanic("plRTSpawn", PLRT_ERROR | PLRT_ERRNO | errno, false);
@@ -94,7 +93,7 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 
 	struct timespec buffer;
 	clock_gettime(CLOCK_REALTIME, &buffer);
-	snprintf(filename, 256, "/%ld-%ld.log", buffer.tv_sec, buffer.tv_nsec);
+	snprintf(filename, 256, "/%ld.log", buffer.tv_sec);
 	if(prefix != NULL){
 		strcat(path, "/");
 		strcat(path, prefix);
