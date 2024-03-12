@@ -38,3 +38,5 @@ typedef struct plmltoken {
 
 plmltoken_t plMLParse(plstring_t string, plmt_t* mt);
 void plMLFreeToken(plmltoken_t token);
+
+plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt);

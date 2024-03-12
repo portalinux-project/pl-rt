@@ -276,3 +276,158 @@ void plMLFreeToken(plmltoken_t token){
 		plMTFree((plmt_t*)token.mt, token.value.string.pointer);
 	}
 }
+
+plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
+	if(token.name.data.pointer == NULL)
+		plRTPanic("plMLGenerateTokenStr", PLRT_ERROR || PLRT_NULL_PTR, true);
+
+	plstring_t retString = {
+		.data = {
+			.pointer = NULL,
+			.size = 0
+		},
+		.isplChar = false,
+		.mt = mt
+	};
+
+	if(token.type == PLML_TYPE_HEADER){
+		retString.data.pointer = plMTAlloc(mt, token.value.string.size + 3);
+		((char*)retString.data.pointer)[0] = '[';
+		strncpy(retString.data.pointer + 1, token.name.data.pointer, token.name.data.size);
+		((char*)retString.data.pointer)[token.name.data.size + 1] = ']';
+		((char*)retString.data.pointer)[token.name.data.size + 2] = '\0';
+		retString.data.size = token.name.data.size + 2;
+	}else{
+		retString.data.pointer = plMTAlloc(mt, token.name.data.size + 4);
+		retString.data.size = token.name.data.size + 3;
+		snprintf(retString.data.pointer, retString.data.size + 1, "%s = ", token.name.data.pointer);
+		*((char*)retString.data.pointer + retString.data.size + 1) = '\0';
+		if(token.isArray){
+			retString.data.pointer = plMTRealloc(mt, retString.data.pointer, token.name.data.size + 5);
+			retString.data.size++;
+			*((char*)retString.data.pointer + retString.data.size - 1) = '[';
+			*((char*)retString.data.pointer + retString.data.size) = ' ';
+			*((char*)retString.data.pointer + retString.data.size + 1) = '\0';
+		}
+
+		void* tempPtr = NULL;
+		char printBuffer[32] = "";
+
+		switch(token.type){
+			case PLML_TYPE_INT:
+				if(token.isArray){
+					long* tempArr = token.value.array.pointer;
+					for(int i = 0; i < token.value.array.size; i++){
+						retString.data.size += snprintf(printBuffer, 32, "%ld, ", tempArr[i]);
+
+						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+						if(tempPtr == NULL)
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						strcat(tempPtr, printBuffer);
+						retString.data.pointer = tempPtr;
+					}
+				}else{
+					retString.data.size += snprintf(printBuffer, 32, "%ld", token.value.integer);
+					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+					if(tempPtr == NULL)
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+					strcat(tempPtr, printBuffer);
+					retString.data.pointer = tempPtr;
+				}
+				break;
+			case PLML_TYPE_BOOL:
+				if(token.isArray){
+					bool* tempArr = token.value.array.pointer;
+					for(int i = 0; i < token.value.array.size; i++){
+						if(tempArr[i]){
+							strcpy(printBuffer, "true, ");
+							retString.data.size += 6;
+						}else{
+							strcpy(printBuffer, "false, ");
+							retString.data.size += 7;
+						}
+
+						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+						if(tempPtr == NULL)
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						strcat(tempPtr, printBuffer);
+						retString.data.pointer = tempPtr;
+					}
+				}else{
+					if(token.value.boolean){
+						retString.data.size += 4;
+						strcpy(printBuffer, "true");
+					}else{
+						retString.data.size += 5;
+						strcpy(printBuffer, "false");
+					}
+
+					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+					if(tempPtr == NULL)
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+					strcat(tempPtr, printBuffer);
+					retString.data.pointer = tempPtr;
+
+				}
+				break;
+			case PLML_TYPE_FLOAT:
+				if(token.isArray){
+					double* tempArr = token.value.array.pointer;
+					for(int i = 0; i < token.value.array.size; i++){
+						retString.data.size += snprintf(printBuffer, 32, "%f, ", tempArr[i]);
+
+						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+						if(tempPtr == NULL)
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						strcat(tempPtr, printBuffer);
+						retString.data.pointer = tempPtr;
+					}
+				}else{
+					retString.data.size += snprintf(printBuffer, 32, "%f", token.value.decimal);
+					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+					if(tempPtr == NULL)
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+					strcat(tempPtr, printBuffer);
+					retString.data.pointer = tempPtr;
+
+				}
+				break;
+			case PLML_TYPE_STRING:
+				if(token.isArray){
+					plptr_t* tempArr = token.value.array.pointer;
+					for(int i = 0; i < token.value.array.size; i++){
+						char strBuffer[tempArr[i].size + 5];
+						snprintf(strBuffer, tempArr[i].size + 5, "\"%s\", ", tempArr[i].pointer);
+						retString.data.size += tempArr[i].size + 4;
+
+						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+						if(tempPtr == NULL)
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						strcat(tempPtr, strBuffer);
+						retString.data.pointer = tempPtr;
+
+					}
+				}else{
+					char strBuffer[token.value.string.size + 3];
+					snprintf(strBuffer, token.value.string.size + 3, "\"%s\"", token.value.string.pointer);
+					retString.data.size += token.value.string.size + 2;
+					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
+					if(tempPtr == NULL)
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+					strcat(tempPtr, strBuffer);
+					retString.data.pointer = tempPtr;
+
+				}
+				break;
+			default:
+				plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_INVALID_TOKEN, true);
+		}
+
+		if(token.isArray){
+			*((char*)retString.data.pointer + retString.data.size - 1) = ' ';
+			*((char*)retString.data.pointer + retString.data.size) = ']';
+		}
+	}
+
+	return retString;
+}

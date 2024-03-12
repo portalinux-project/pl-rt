@@ -309,9 +309,9 @@ int plMLTest(char* customFile, plmt_t* mt){
 					for(int i = 0; i < parsedToken.value.array.size - 1; i++)
 						printf("Value %d: %s\n", i + 1, (char*)rawStringArray[i].pointer);
 
-					printf("Value %ld: %s\n\n", parsedToken.value.array.size, (char*)rawStringArray[parsedToken.value.array.size - 1].pointer);
+					printf("Value %ld: %s\n", parsedToken.value.array.size, (char*)rawStringArray[parsedToken.value.array.size - 1].pointer);
 				}else{
-					printf("Value: %s\n\n", (char*)parsedToken.value.string.pointer);
+					printf("Value: %s\n", (char*)parsedToken.value.string.pointer);
 				}
 				break;
 			case PLML_TYPE_BOOL:
@@ -323,7 +323,7 @@ int plMLTest(char* customFile, plmt_t* mt){
 				if(parsedToken.isArray){
 					printf("Size: %ld\n", parsedToken.value.array.size);
 					bool* rawBoolArray = parsedToken.value.array.pointer;
-					for(int i = 0; i < parsedToken.value.array.size - 1; i++){
+						for(int i = 0; i < parsedToken.value.array.size - 1; i++){
 						printf("Value %d: ", i + 1);
 						if(rawBoolArray[i])
 							printf("True\n");
@@ -333,15 +333,15 @@ int plMLTest(char* customFile, plmt_t* mt){
 
 					printf("Value %ld: ", parsedToken.value.array.size);
 					if(rawBoolArray[parsedToken.value.array.size - 1])
-						printf("True\n\n");
+						printf("True\n");
 					else
-						printf("False\n\n");
+						printf("False\n");
 				}else{
 					printf("Value: ");
 					if(parsedToken.value.boolean)
-						printf("True\n\n");
+						printf("True\n");
 					else
-						printf("False\n\n");
+						printf("False\n");
 				}
 				break;
 			case PLML_TYPE_INT:
@@ -356,13 +356,13 @@ int plMLTest(char* customFile, plmt_t* mt){
 					for(int i = 0; i < parsedToken.value.array.size - 1; i++)
 						printf("Value %d: %li\n", i + 1, rawIntArray[i]);
 
-					printf("Value %ld: %li\n\n", parsedToken.value.array.size, rawIntArray[parsedToken.value.array.size - 1]);
+					printf("Value %ld: %li\n", parsedToken.value.array.size, rawIntArray[parsedToken.value.array.size - 1]);
 				}else{
-					printf("Value: %li\n\n", parsedToken.value.integer);
+					printf("Value: %li\n", parsedToken.value.integer);
 				}
 				break;
 			case PLML_TYPE_HEADER:
-				printf("Header\n\n");
+				printf("Header\n");
 				break;
 			case PLML_TYPE_FLOAT:
 				printf("Float");
@@ -376,14 +376,18 @@ int plMLTest(char* customFile, plmt_t* mt){
 					for(int i = 0; i < parsedToken.value.array.size - 1; i++)
 						printf("Value %d: %f\n", i + 1, rawDoubleArray[i]);
 
-					printf("Value %ld: %f\n\n", parsedToken.value.array.size, rawDoubleArray[parsedToken.value.array.size - 1]);
+					printf("Value %ld: %f\n", parsedToken.value.array.size, rawDoubleArray[parsedToken.value.array.size - 1]);
 				}else{
-					printf("Value: %f\n\n", parsedToken.value.decimal);
+					printf("Value: %f\n", parsedToken.value.decimal);
 				}
 				break;
 			default: ;
 		}
 
+		plstring_t tokenStr = plMLGenerateTokenStr(parsedToken, mt);
+		printf("Original Token String: %s\n\n", tokenStr.data.pointer);
+
+		plMTFree(mt, tokenStr.data.pointer);
 		plMLFreeToken(parsedToken);
 		lineBuffer.data.size = 4096;
 		i++;
