@@ -1,5 +1,5 @@
 ******************************************
-The PortaLinux Runtime v1.00 Documentation
+The PortaLinux Runtime v1.02 Documentation
 ******************************************
 
 String Operations API
