@@ -105,13 +105,19 @@ namespace plRT {
 		};
 	}
 
-	memory::fatPointer parser(plRT::cApi::string_t input, memory::tracker &tracker){
-		plRT::cApi::plfatptr_t* tempData = plRT::cApi::plParser(input, tracker.getMTHandle());
+	std::string plStoCppString(plRT::cApi::plstring_t string){
+		
+	}
 
-		memory::fatPointer returnPointer(tempData->array, tempData->size, true, true, tracker);
-		tracker.free(tempData);
+	namespace parser {
+		memory::fatPointer parse(plRT::cApi::plstring_t input, memory::tracker &tracker){
+			plRT::cApi::plfatptr_t* tempData = plRT::cApi::plParser(input, tracker.getMTHandle());
 
-		return returnPointer;
+			memory::fatPointer returnPointer(tempData->array, tempData->size, true, true, tracker);
+			tracker.free(tempData);
+
+			return returnPointer;
+		}
 	}
 
 	class file {
