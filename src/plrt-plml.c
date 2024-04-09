@@ -322,7 +322,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 
 						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 						if(tempPtr == NULL)
-							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 						strcat(tempPtr, printBuffer);
 						retString.data.pointer = tempPtr;
 					}
@@ -330,7 +330,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 					retString.data.size += snprintf(printBuffer, 32, "%ld", token.value.integer);
 					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 					if(tempPtr == NULL)
-						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 					strcat(tempPtr, printBuffer);
 					retString.data.pointer = tempPtr;
 				}
@@ -349,7 +349,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 
 						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 						if(tempPtr == NULL)
-							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 						strcat(tempPtr, printBuffer);
 						retString.data.pointer = tempPtr;
 					}
@@ -364,7 +364,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 
 					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 					if(tempPtr == NULL)
-						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 					strcat(tempPtr, printBuffer);
 					retString.data.pointer = tempPtr;
 
@@ -378,7 +378,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 
 						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 						if(tempPtr == NULL)
-							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 						strcat(tempPtr, printBuffer);
 						retString.data.pointer = tempPtr;
 					}
@@ -386,7 +386,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 					retString.data.size += snprintf(printBuffer, 32, "%f", token.value.decimal);
 					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 					if(tempPtr == NULL)
-						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 					strcat(tempPtr, printBuffer);
 					retString.data.pointer = tempPtr;
 
@@ -402,7 +402,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 
 						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 						if(tempPtr == NULL)
-							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+							plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 						strcat(tempPtr, strBuffer);
 						retString.data.pointer = tempPtr;
 
@@ -413,7 +413,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 					retString.data.size += token.value.string.size + 2;
 					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 					if(tempPtr == NULL)
-						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, false);
+						plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 					strcat(tempPtr, strBuffer);
 					retString.data.pointer = tempPtr;
 
@@ -428,6 +428,14 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 			*((char*)retString.data.pointer + retString.data.size) = ']';
 		}
 	}
+
+
+	void* tempRetPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 2);
+	if(tempRetPtr == NULL)
+		plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
+	strcat(tempRetPtr, "\n");
+	retString.data.pointer = tempRetPtr;
+	retString.data.size++;
 
 	return retString;
 }

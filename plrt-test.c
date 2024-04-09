@@ -385,7 +385,7 @@ int plMLTest(char* customFile, plmt_t* mt){
 		}
 
 		plstring_t tokenStr = plMLGenerateTokenStr(parsedToken, mt);
-		printf("Original Token String: %s\n\n", tokenStr.data.pointer);
+		printf("Original Token String: %s\n", tokenStr.data.pointer);
 
 		plMTFree(mt, tokenStr.data.pointer);
 		plMLFreeToken(parsedToken);
