@@ -187,7 +187,7 @@ int plFGets(plstring_t* string, plfile_t* stream){
 			writeNum = string->data.size - 1;
 
 		if(writeNum == 0)
-			return 1;
+			return 0;
 
 		memcpy(string->data.pointer, stream->strbuf + stream->seekbyte, writeNum);
 		((char*)string->data.pointer)[writeNum] = '\n';
