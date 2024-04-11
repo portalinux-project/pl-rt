@@ -162,9 +162,9 @@ int plFPuts(plstring_t string, plfile_t* stream){
 
 	if(stream->strbuf != NULL){
 		if(plFWrite(string.data, stream))
-			return 0;
+			return 1;
 
-		return 1;
+		return 0;
 	}else{
 		return fputs(string.data.pointer, stream->fileptr);
 	}
@@ -200,11 +200,11 @@ int plFGets(plstring_t* string, plfile_t* stream){
 	}else{
 		memptr_t tmpVar = fgets(string->data.pointer, string->data.size, stream->fileptr);
 		if(tmpVar == NULL)
-			return 1;
+			return 0;
 		string->data.size = strlen(string->data.pointer);
 	}
 
-	return 0;
+	return 1;
 }
 
 /* Moves the seek position offset amount of bytes relative from whence */
