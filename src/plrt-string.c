@@ -284,7 +284,7 @@ plstring_t plRTStrdup(plstring_t string, bool compress, plmt_t* mt){
 
 	retStr.data.pointer = plMTAlloc(mt, string.data.size + 1);
 	retStr.data.size = string.data.size;
-	retStr.isplChar = false;
+	retStr.isplChar = string.isplChar;
 	retStr.mt = mt;
 	memcpy(retStr.data.pointer, string.data.pointer, string.data.size);
 
