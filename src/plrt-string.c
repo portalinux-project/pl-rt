@@ -277,7 +277,7 @@ plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* lefto
 }
 
 plstring_t plRTStrdup(plstring_t string, bool compress, plmt_t* mt){
-	if(string.data.pointer || mt == NULL)
+	if(string.data.pointer == NULL || mt == NULL)
 		plRTPanic("plRTStrdup", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	plstring_t retStr;
@@ -287,6 +287,8 @@ plstring_t plRTStrdup(plstring_t string, bool compress, plmt_t* mt){
 	retStr.isplChar = string.isplChar;
 	retStr.mt = mt;
 	memcpy(retStr.data.pointer, string.data.pointer, string.data.size);
+	if(compress && retStr.isplChar)
+		plRTStrCompress(&retStr, mt);
 
 	return retStr;
 }

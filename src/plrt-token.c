@@ -9,7 +9,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 	if(leftoverStr == NULL || mt == NULL)
 		plRTPanic("plRTTokenize", PLRT_ERROR | PLRT_NULL_PTR, true);
 
-	plchar_t delimiters[7] = {
+	plchar_t delimiters[8] = {
 		{
 			.bytes = { '"', '\0', '\0', '\0' }
 		},
@@ -27,6 +27,9 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 		},
 		{
 			.bytes = { '\n', '\0', '\0', '\0' }
+		},
+		{
+			.bytes = { '\t', '\0', '\0', '\0' }
 		},
 		{
 			.bytes = { '\\', '\0', '\0', '\0' }
@@ -52,12 +55,15 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 	}
 
 	memptr_t tempSearchLimit = string.data.pointer + string.data.size - 1;
-	while(string.data.pointer < tempSearchLimit && *(char*)string.data.pointer == ' '){
+	while(string.data.pointer < tempSearchLimit && (*(char*)string.data.pointer == ' ' || *(char*)string.data.pointer == '\t' || *(char*)string.data.pointer == '\n')){
 		string.data.pointer++;
 		string.data.size--;
 	}
 
-	int64_t delimOffsets[5] = { plRTStrchr(string, delimiters[0], 0), plRTStrchr(string, delimiters[1], 0), plRTStrchr(string, delimiters[2], 0), -1, plRTStrchr(string, delimiters[4], 0)};
+	if(string.data.pointer == tempSearchLimit && (*(char*)string.data.pointer == ' ' || *(char*)string.data.pointer == '\t' || *(char*)string.data.pointer == '\n'))
+		return retStr;
+
+	int64_t delimOffsets[6] = { plRTStrchr(string, delimiters[0], 0), plRTStrchr(string, delimiters[1], 0), plRTStrchr(string, delimiters[2], 0), -1, plRTStrchr(string, delimiters[4], 0), plRTStrchr(string, delimiters[6], 0)};
 	int64_t quoteEndings[2] = { -1, -1 };
 
 	bool noQuotesFound = (delimOffsets[0] == -1 && delimOffsets[1] == -1);
@@ -73,7 +79,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 
 	if((noQuotesFound && delimOffsets[2] == -1) || (noEndArrayBracket && arrayBeforeStr) || (noEndQuoteBasic && !literalBeforeBasicStr) || (noEndQuoteLiteral && literalBeforeBasicStr) || spaceComesFirst){
 		retStr.data.pointer = &delimiters[4];
-		retStr.data.size = 2;
+		retStr.data.size = 3;
 		retStr.isplChar = true;
 
 		return plRTStrtok(string, retStr, leftoverStr, mt);
@@ -108,13 +114,13 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 		memcpy(retStr.data.pointer, string.data.pointer + startOffset, retStr.data.size);
 		((char*)retStr.data.pointer)[retStr.data.size] = '\0';
 
-		int64_t escapedChars = plRTStrchr(retStr, delimiters[6], 0);
+		int64_t escapedChars = plRTStrchr(retStr, delimiters[7], 0);
 		if(escapedChars != -1 && *((char*)retStr.data.pointer) == '"'){
 			while(escapedChars != -1){
 				memcpy(retStr.data.pointer + escapedChars, retStr.data.pointer + escapedChars + 1, retStr.data.size - escapedChars);
 				retStr.data.size--;
 				escapedChars++;
-				escapedChars = plRTStrchr(retStr, delimiters[6], escapedChars);
+				escapedChars = plRTStrchr(retStr, delimiters[7], escapedChars);
 			}
 
 			memptr_t tempPtr = plMTRealloc(mt, retStr.data.pointer, retStr.data.size);
@@ -125,7 +131,7 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 		}
 
 		leftoverStr->isplChar = false;
-		if(endOffset == searchLimit || (endOffset == searchLimit - 1 && (((char*)retStr.data.pointer)[searchLimit] == ' ' || ((char*)retStr.data.pointer)[searchLimit] == '\n'))){
+		if(endOffset == searchLimit || (endOffset == searchLimit - 1 && (((char*)retStr.data.pointer)[searchLimit] == ' ' || ((char*)retStr.data.pointer)[searchLimit] == '\n' || ((char*)retStr.data.pointer)[searchLimit] == '\t'))){
 			leftoverStr->data.pointer = NULL;
 			leftoverStr->data.size = 0;
 		}else{
