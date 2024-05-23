@@ -6,12 +6,14 @@
 #include <plrt-string.h>
 
 size_t getCharSize(plchar_t chr){
-	size_t size = 4;
+	if (chr.bytes[0] > 240)
+		return 4;
+	else if(chr.bytes[0] > 224)
+		return 3;
+	else if(chr.bytes[0] > 192)
+		return 2;
 
-	while(size > 0 && chr.bytes[size - 1] == 0)
-		size--;
-
-	return size;
+	return 1;
 }
 
 plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt){
@@ -64,18 +66,12 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 	uint8_t* compressedStr = plMTAlloc(mt, plCharStr->data.size * 4);
 	size_t offset = 0;
 	for(int i = 0; i < plCharStr->data.size; i++){
-		int endOfUtfChr = -1;
-		uint8_t bytes[4];
+		size_t charSize = getCharSize(plCharStrPtr[i]);
 
-		for(int j = 4; j > 0; j--){
-			if(endOfUtfChr == -1 && plCharStrPtr[i].bytes[j] != 0)
-				endOfUtfChr = j;
-		}
-
-		for(int j = 0; j < endOfUtfChr; j++)
+		for(int j = 0; j < charSize; j++)
 			compressedStr[offset + j] = plCharStrPtr[i].bytes[j];
 
-		offset += endOfUtfChr;
+		offset += charSize;
 	}
 
 	memptr_t resizedPtr = plMTRealloc(mt, compressedStr, offset + 1);
