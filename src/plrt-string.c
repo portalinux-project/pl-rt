@@ -84,6 +84,7 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 
 	plCharStr->data.pointer = compressedStr;
 	plCharStr->data.size = offset;
+	plCharStr->isplChar = false;
 	plCharStr->mt = mt;
 }
 
