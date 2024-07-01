@@ -300,7 +300,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 	}else{
 		retString.data.pointer = plMTAlloc(mt, token.name.data.size + 4);
 		retString.data.size = token.name.data.size + 3;
-		snprintf(retString.data.pointer, retString.data.size + 1, "%s = ", token.name.data.pointer);
+		snprintf(retString.data.pointer, retString.data.size + 1, "%s = ",(char*) token.name.data.pointer);
 		*((char*)retString.data.pointer + retString.data.size + 1) = '\0';
 		if(token.isArray){
 			retString.data.pointer = plMTRealloc(mt, retString.data.pointer, token.name.data.size + 5);
@@ -397,7 +397,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 					plptr_t* tempArr = token.value.array.pointer;
 					for(int i = 0; i < token.value.array.size; i++){
 						char strBuffer[tempArr[i].size + 5];
-						snprintf(strBuffer, tempArr[i].size + 5, "\"%s\", ", tempArr[i].pointer);
+						snprintf(strBuffer, tempArr[i].size + 5, "\"%s\", ", (char*)tempArr[i].pointer);
 						retString.data.size += tempArr[i].size + 4;
 
 						tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
@@ -409,7 +409,7 @@ plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
 					}
 				}else{
 					char strBuffer[token.value.string.size + 3];
-					snprintf(strBuffer, token.value.string.size + 3, "\"%s\"", token.value.string.pointer);
+					snprintf(strBuffer, token.value.string.size + 3, "\"%s\"", (char*)token.value.string.pointer);
 					retString.data.size += token.value.string.size + 2;
 					tempPtr = plMTRealloc(mt, retString.data.pointer, retString.data.size + 1);
 					if(tempPtr == NULL)

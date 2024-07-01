@@ -22,10 +22,8 @@ plstring_t plRTStrFromCStr(char* cStr, plmt_t* mt){
 
 	size_t cStrSize = strlen(cStr);
 	memptr_t tempPtr = cStr;
-	bool memAlloc = false;
 	if(mt != NULL){
 		tempPtr = plMTAlloc(mt, cStrSize + 1);
-		memAlloc = true;
 		memcpy(tempPtr, cStr, cStrSize);
 	}
 
