@@ -5,12 +5,12 @@
 \*********************************************/
 #include <plrt-string.h>
 
-size_t getCharSize(plchar_t chr){
-	if (chr.bytes[0] > 240)
+size_t getUnicodeCharSize(uint8_t chr){
+	if(chr > 240)
 		return 4;
-	else if(chr.bytes[0] > 224)
+	else if(chr > 224)
 		return 3;
-	else if(chr.bytes[0] > 192)
+	else if(chr > 192)
 		return 2;
 
 	return 1;
@@ -62,17 +62,17 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 
 	plchar_t* plCharStrPtr = plCharStr->data.pointer;
 	uint8_t* compressedStr = plMTAlloc(mt, plCharStr->data.size * 4);
-	size_t offset = 0;
+	size_t realSize = 0;
 	for(int i = 0; i < plCharStr->data.size; i++){
-		size_t charSize = getCharSize(plCharStrPtr[i]);
+		size_t charSize = getUnicodeCharSize(plCharStrPtr[i].bytes[0]);
 
 		for(int j = 0; j < charSize; j++)
-			compressedStr[offset + j] = plCharStrPtr[i].bytes[j];
+			compressedStr[realSize + j] = plCharStrPtr[i].bytes[j];
 
-		offset += charSize;
+		realSize += charSize;
 	}
 
-	memptr_t resizedPtr = plMTRealloc(mt, compressedStr, offset + 1);
+	memptr_t resizedPtr = plMTRealloc(mt, compressedStr, realSize + 1);
 	if(resizedPtr == NULL)
 		plRTPanic("plRTStrCompress", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
@@ -81,9 +81,43 @@ void plRTStrCompress(plstring_t* plCharStr, plmt_t* mt){
 		plMTFree(mt, plCharStr->data.pointer);
 
 	plCharStr->data.pointer = compressedStr;
-	plCharStr->data.size = offset;
+	plCharStr->data.size = realSize;
 	plCharStr->isplChar = false;
 	plCharStr->mt = mt;
+}
+
+void plRTStrDecompress(plstring_t* cStr, plmt_t* mt){
+	if(mt == NULL || cStr == NULL || cStr->data.pointer == NULL)
+		plRTPanic("plRTStrDecompress", PLRT_ERROR | PLRT_NULL_PTR, true);
+	if(cStr->isplChar)
+		plRTPanic("plRTStrDecompress", PLRT_ERROR | PLRT_NOT_COMPRESSED, true);
+
+	uint8_t* cStrPtr = cStr->data.pointer;
+	plchar_t* decompressedStr = plMTAlloc(mt, cStr->data.size * sizeof(plchar_t));
+	size_t realSize = 0;
+
+	for(int i = 0; i < cStr->data.size; i++){
+		size_t charSize = getUnicodeCharSize(cStrPtr[i]);
+
+		for(int j = 0; j < charSize; j++)
+			decompressedStr[realSize].bytes[j] = cStrPtr[i + j];
+
+		i += (charSize - 1);
+		realSize++;
+	}
+
+	memptr_t resizedPtr = plMTRealloc(mt, decompressedStr, realSize * sizeof(plchar_t));
+	if(resizedPtr == NULL)
+		plRTPanic("plRTStrDecompress", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
+
+	decompressedStr = resizedPtr;
+	if(cStr->mt != NULL)
+		plMTFree(mt, cStr->data.pointer);
+
+	cStr->data.pointer = decompressedStr;
+	cStr->data.size = realSize;
+	cStr->isplChar = true;
+	cStr->mt = mt;
 }
 
 int64_t plRTIsMemPatternDiff(uint8_t* mainPtr, plptr_t searchPtr){
@@ -140,7 +174,7 @@ int64_t plRTStrchr(plstring_t string, plchar_t chr, size_t startAt){
 
 	plptr_t tempStruct = {
 		.pointer = chr.bytes,
-		.size = getCharSize(chr),
+		.size = getUnicodeCharSize(chr.bytes[0]),
 	};
 
 	string.data.pointer += startAt;
@@ -249,7 +283,7 @@ plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* lefto
 	leftoverStr->data.size = 0;
 	leftoverStr->isplChar = false;
 	if(endOffset != searchLimit){
-		size_t leftoverOffset = endOffset + getCharSize(delim[iterator]);
+		size_t leftoverOffset = endOffset + getUnicodeCharSize(delim[iterator].bytes[0]);
 		iterator = 0;
 		while(leftoverStr->data.pointer == NULL && leftoverOffset < searchLimit){
 			int64_t tempChr = plRTStrchr(string, delim[iterator], leftoverOffset);
@@ -262,7 +296,7 @@ plstring_t plRTStrtok(plstring_t string, plstring_t delimiter, plstring_t* lefto
 					leftoverOffset = searchLimit;
 				}
 			}else{
-				leftoverOffset += getCharSize(delim[iterator]);
+				leftoverOffset += getUnicodeCharSize(delim[iterator].bytes[0]);
 			}
 		}
 	}

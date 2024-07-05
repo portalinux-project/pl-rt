@@ -23,7 +23,11 @@ typedef enum plloglevel {
 	LOG_FATAL_ERROR
 } plloglevel_t;
 
+#ifdef PLRT_ENABLE_HANDLER
 void plRTSetSignal(int signal);
+#else
+void signalHandler(int signal){}
+#endif
 pid_t plRTSpawn(plptr_t args);
 plptr_t plRTGetDirents(char* path, plmt_t* mt);
 

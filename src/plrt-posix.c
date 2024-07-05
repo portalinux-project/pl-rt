@@ -4,6 +4,7 @@
  plrt-posix.h: POSIX module
 \**************************************/
 
+#define PLRT_ENABLE_HANDLER
 #include <plrt-posix.h>
 #include <errno.h>
 
