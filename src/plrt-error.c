@@ -1,5 +1,5 @@
 /**************************************\
- pl-rt, v1.02
+ pl-rt, v1.03
  (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-error.c: Error handling module
 \**************************************/
