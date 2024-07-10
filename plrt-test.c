@@ -206,7 +206,7 @@ int plRTFileTest(char* customFile, plmt_t* mt){
 
 	printf("Done\n");
 	printf("Contents of %s:\n\n", filepath);
-	while(plFGets(&stringBuffer, realFile) != 1){
+	while(plFGets(&stringBuffer, realFile) != 0){
 		printf("%s", (char*)stringBuffer.data.pointer);
 		for(int i = 0; i < 4096; i++)
 			((char*)stringBuffer.data.pointer)[i] = 0;
@@ -218,7 +218,7 @@ int plRTFileTest(char* customFile, plmt_t* mt){
 	plFSeek(memFile, 0, SEEK_SET);
 	printf("Done\n");
 	printf("Contents of file-in-memory:\n");
-	while(plFGets(&stringBuffer, memFile) != 1){
+	while(plFGets(&stringBuffer, memFile) != 0){
 		printf("%s", (char*)stringBuffer.data.pointer);
 		for(int i = 0; i < 4096; i++)
 			((char*)stringBuffer.data.pointer)[i] = 0;
