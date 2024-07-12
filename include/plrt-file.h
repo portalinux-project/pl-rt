@@ -23,6 +23,18 @@ int plFGetC(plfile_t* stream);
 int plFPuts(plstring_t string, plfile_t* stream);
 int plFGets(plstring_t* string, plfile_t* stream);
 
+#ifdef PLRT_USE_LEGACY_FILE
+int plFPutsOld(plstring_t string, plfile_t* stream){
+	return !plFPuts(string, stream);
+}
+
+int plFGetsOld(plstring_t* string, plfile_t* stream){
+	return !plFGets(string, stream);
+}
+#define plFGets plFGetsOld
+#define plFPuts plFPutsOld
+#endif
+
 int plFSeek(plfile_t* stream, long int offset, int whence);
 size_t plFTell(plfile_t* stream);
 void plFFlush(plfile_t* stream);
