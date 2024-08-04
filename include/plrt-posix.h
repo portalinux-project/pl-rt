@@ -30,17 +30,19 @@ void signalHandler(int signal){}
 #endif
 pid_t plRTSpawn(plptr_t args);
 plptr_t plRTGetDirents(char* path, plmt_t* mt);
+void plRTSortDirents(plptr_t direntArray);
 #ifdef  PLRT_COMPAT_FEATURELVL
 #if PLRT_COMPAT_FEATURELVL < 4
-plptr_t plRTGetDirentNames(char* path, plmt_t mt){
+plptr_t plRTGetDirentNames(char* path, plmt_t* mt){
 	plptr_t workPtr = plRTGetDirents(path, mt);
 	plptr_t retPtr = {
-		.pointer = plMTAlloc(mt, workPtr->size * sizeof(plstring_t)),
+		.pointer = plMTAlloc(mt, workPtr.size * sizeof(plstring_t)),
 		.size = workPtr.size
 	};
 
+	plRTSortDirents(workPtr);
 	for(int i = 0; i < retPtr.size; i++)
-		((plstring_t*)retPtr.pointer)[i] = plRTStrFromCStr(((struct dirent*)workPtr)[i].d_name, mt);
+		((plstring_t*)retPtr.pointer)[i] = plRTStrFromCStr(((struct dirent*)workPtr.pointer)[i].d_name, mt);
 
 	return retPtr;
 }

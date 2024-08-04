@@ -45,10 +45,6 @@ int plRTSpawn(plptr_t args){
 }
 
 
-int plRTSortDirents(const void* dirent1, const void* dirent2){
-	return strcmp(((struct dirent*)dirent1)->d_name, ((struct dirent*)dirent2)->d_name);
-}
-
 plptr_t plRTGetDirents(char* path, plmt_t* mt){
 	DIR* directory = opendir(path);
 	struct dirent* directoryEntry;
@@ -73,9 +69,15 @@ plptr_t plRTGetDirents(char* path, plmt_t* mt){
 		}
 	}
 
-	qsort(fileList.pointer, fileList.size, sizeof(struct dirent), plRTSortDirents);
-
 	return fileList;
+}
+
+int internalSorter(const void* dirent1, const void* dirent2){
+	return strcmp(((struct dirent*)dirent1)->d_name, ((struct dirent*)dirent2)->d_name);
+}
+
+void plRTSortDirents(plptr_t direntArray){
+	qsort(direntArray.pointer, direntArray.size, sizeof(struct dirent), internalSorter);
 }
 
 plfile_t* plRTLogStart(char* prefix, plmt_t* mt){

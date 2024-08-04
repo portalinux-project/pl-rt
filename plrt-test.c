@@ -2,6 +2,7 @@
 * plrt-test: pl-rt testcase              *
 * (c)2023 pocketlinux32, Under MPL v2.0  *
 \****************************************/
+#define PLRT_COMPAT_FEATURELVL 3
 #include <plrt.h>
 
 bool nonInteractive = false;
