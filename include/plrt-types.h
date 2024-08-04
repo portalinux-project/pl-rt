@@ -1,5 +1,5 @@
 /**********************************************************\
- pl-rt, v1.03
+ pl-rt, v1.04
  (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-types.h: Types header and Error handler module header
 \**********************************************************/
@@ -15,9 +15,9 @@
 #include <stddef.h>
 #endif
 
-#define PLRT_VERSION "1.03"
+#define PLRT_VERSION "1.04"
 #define PLRT_API_VER 1
-#define PLRT_FEATURELVL 3
+#define PLRT_FEATURELVL 4
 #define PLRT_PATCHLVL 0
 #define UINT_SHIFT_LIMIT 63
 

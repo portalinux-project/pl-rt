@@ -1,5 +1,5 @@
 /**************************************\
- pl-rt, v1.03
+ pl-rt, v1.04
  (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-posix.h: POSIX module header
 \**************************************/
@@ -30,6 +30,23 @@ void signalHandler(int signal){}
 #endif
 pid_t plRTSpawn(plptr_t args);
 plptr_t plRTGetDirents(char* path, plmt_t* mt);
+#ifdef  PLRT_COMPAT_FEATURELVL
+#if PLRT_COMPAT_FEATURELVL < 4
+plptr_t plRTGetDirentNames(char* path, plmt_t mt){
+	plptr_t workPtr = plRTGetDirents(path, mt);
+	plptr_t retPtr = {
+		.pointer = plMTAlloc(mt, workPtr->size * sizeof(plstring_t)),
+		.size = workPtr.size
+	};
+
+	for(int i = 0; i < retPtr.size; i++)
+		((plstring_t*)retPtr.pointer)[i] = plRTStrFromCStr(((struct dirent*)workPtr)[i].d_name, mt);
+
+	return retPtr;
+}
+#define plRTGetDirents plRTGetDirentNames
+#endif
+#endif
 
 plfile_t* plRTLogStart(char* prefix, plmt_t* mt);
 void plRTLog(plfile_t* logFile, plloglevel_t logLevel, plstring_t string);

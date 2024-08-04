@@ -1,5 +1,5 @@
 /******************************************\
- pl-rt, v1.03
+ pl-rt, v1.04
  (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-file.h: File management module header
 \******************************************/
@@ -23,7 +23,8 @@ int plFGetC(plfile_t* stream);
 int plFPuts(plstring_t string, plfile_t* stream);
 int plFGets(plstring_t* string, plfile_t* stream);
 
-#ifdef PLRT_USE_LEGACY_FILE
+#ifdef PLRT_COMPAT_FEATURELVL
+#if PLRT_COMPAT_FEATURELVL < 3
 int plFPutsOld(plstring_t string, plfile_t* stream){
 	return !plFPuts(string, stream);
 }
@@ -33,6 +34,7 @@ int plFGetsOld(plstring_t* string, plfile_t* stream){
 }
 #define plFGets plFGetsOld
 #define plFPuts plFPutsOld
+#endif
 #endif
 
 int plFSeek(plfile_t* stream, long int offset, int whence);

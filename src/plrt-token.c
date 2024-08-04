@@ -1,5 +1,5 @@
 /*******************************************\
- pl-rt, v1.03
+ pl-rt, v1.04
  (c) 2024 CinnamonWolfy, Under MPL v2.0
  plrt-token.c: Parser/Tokenizer module
 \*******************************************/

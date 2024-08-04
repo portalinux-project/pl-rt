@@ -1,7 +1,7 @@
 /**************************************\
- pl-rt, v1.03
+ pl-rt, v1.04
  (c) 2024 CinnamonWolfy, Under MPL v2.0
- plrt-posix.h: POSIX module
+ plrt-posix.c: POSIX module
 \**************************************/
 
 #define PLRT_ENABLE_HANDLER
@@ -45,15 +45,15 @@ int plRTSpawn(plptr_t args){
 }
 
 
-int plRTSortDirents(const void* string1, const void* string2){
-	return plRTStrcmp(*(plstring_t*)string1, *(plstring_t*)string2);
+int plRTSortDirents(const void* dirent1, const void* dirent2){
+	return strcmp(((struct dirent*)dirent1)->d_name, ((struct dirent*)dirent2)->d_name);
 }
 
 plptr_t plRTGetDirents(char* path, plmt_t* mt){
 	DIR* directory = opendir(path);
 	struct dirent* directoryEntry;
 	plptr_t fileList = {
-		.pointer = plMTAlloc(mt, 2 * sizeof(plstring_t)),
+		.pointer = plMTAlloc(mt, 2 * sizeof(struct dirent)),
 		.size = 0
 	};
 
@@ -61,23 +61,22 @@ plptr_t plRTGetDirents(char* path, plmt_t* mt){
 		// Check to remove . and .. from directory listing
 		if(strcmp(directoryEntry->d_name, ".") != 0 && strcmp(directoryEntry->d_name, "..") != 0){
 			if(fileList.size > 1){
-				memptr_t tempPtr = plMTRealloc(mt, fileList.pointer, (fileList.size + 1) * sizeof(plstring_t));
+				memptr_t tempPtr = plMTRealloc(mt, fileList.pointer, (fileList.size + 1) * sizeof(struct dirent));
 				if(tempPtr == NULL)
 					plRTPanic("plRTGetDirents", PLRT_FAILED_ALLOC, false);
 
 				fileList.pointer = tempPtr;
 			}
 
-			((plstring_t*)fileList.pointer)[fileList.size] = plRTStrFromCStr(directoryEntry->d_name, mt);
+			((struct dirent*)fileList.pointer)[fileList.size] = *directoryEntry;
 			fileList.size++;
 		}
 	}
 
-	qsort(fileList.pointer, fileList.size, sizeof(plstring_t), plRTSortDirents);
+	qsort(fileList.pointer, fileList.size, sizeof(struct dirent), plRTSortDirents);
 
 	return fileList;
 }
-
 
 plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 	char path[4096] = "/var/log";
@@ -87,7 +86,7 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 	if(getuid() != 0){
 		char* homePath = getenv("HOME");
 		strcpy(path, homePath);
-		strcat(path, "/.cache/");
+		strcat(path, "/.cache");
 		if(stat(path, &dirExist) == -1)
 			mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	}
@@ -106,7 +105,7 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 
 	plfile_t* retFile = plFOpen(path, "a", mt);
 
-	plFPuts(plRTStrFromCStr("[INFO]: PortaLinux Logger, Version 1.02. (c)2024 CinnamonWolfy, under MPL 2.0\n", NULL), retFile);
+	plFPuts(plRTStrFromCStr("[INFO]: PortaLinux Logger, Version 1.04. (c)2024 CinnamonWolfy, under MPL 2.0\n", NULL), retFile);
 	plFPuts(plRTStrFromCStr("[INFO]: Log file located in ", NULL), retFile);
 	plFPuts(plRTStrFromCStr(path, NULL), retFile);
 	plFPuts(plRTStrFromCStr("\n", NULL), retFile);
