@@ -24,6 +24,9 @@ void plRTSetSignal(int signal){
 }
 
 int plRTSpawn(plptr_t args){
+	if(args.pointer == NULL)
+		plRTPanic("plRTSpawn", PLRT_ERROR | PLRT_NULL_PTR, true);
+
 	char* rawArgs[args.size + 1];
 	for(int i = 0; i < args.size; i++)
 		rawArgs[i] = ((plstring_t*)args.pointer)[i].data.pointer;
@@ -46,6 +49,9 @@ int plRTSpawn(plptr_t args){
 
 
 plptr_t plRTGetDirents(char* path, plmt_t* mt){
+	if(path == NULL || mt == NULL)
+		plRTPanic("plRTGetDirents", PLRT_ERROR | PLRT_NULL_PTR, true);
+
 	DIR* directory = opendir(path);
 	struct dirent* directoryEntry;
 	plptr_t fileList = {
@@ -77,10 +83,16 @@ int internalSorter(const void* dirent1, const void* dirent2){
 }
 
 void plRTSortDirents(plptr_t direntArray){
+	if(direntArray.pointer == NULL)
+		plRTPanic("plRTSortDirents", PLRT_ERROR | PLRT_NULL_PTR, true);
+
 	qsort(direntArray.pointer, direntArray.size, sizeof(struct dirent), internalSorter);
 }
 
 plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
+	if(mt == NULL)
+		plRTPanic("plRTLogStart", PLRT_ERROR | PLRT_NULL_PTR, true);
+
 	char path[4096] = "/var/log";
 	char filename[256] = "";
 	struct stat dirExist;
@@ -116,6 +128,9 @@ plfile_t* plRTLogStart(char* prefix, plmt_t* mt){
 }
 
 void plRTLog(plfile_t* logFile, plloglevel_t logLevel, plstring_t string){
+	if(logFile == NULL || string.data.pointer == NULL)
+		plRTPanic("plRTLog", PLRT_ERROR | PLRT_NULL_PTR, true);
+
 	plptr_t holderPtr = string.data;
 	switch(logLevel){
 		case LOG_DEBUG: ;
@@ -148,6 +163,9 @@ void plRTLog(plfile_t* logFile, plloglevel_t logLevel, plstring_t string){
 }
 
 void plRTLogStop(plfile_t* logFile){
+	if(logFile == NULL)
+		plRTPanic("plRTLogStop", PLRT_ERROR | PLRT_NULL_PTR, true);
+
 	plFPuts(plRTStrFromCStr("[INFO] Shutting down logger\n", NULL), logFile);
 	plFClose(logFile);
 }
