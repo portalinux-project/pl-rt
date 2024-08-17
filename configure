@@ -41,11 +41,11 @@ generate_config(){
 		fatal_error "Invalid main project field"
 	fi
 
-	prefix=$(echo "$prefix" | sed "s/~/$HOME/g")
-	exec_prefix=$(echo "$exec_prefix" | sed "s/~/$HOME/g")
-	bindir=$(echo "$bindir" | sed "s/~/$HOME/g")
-	libdir=$(echo "$libdir" | sed "s/~/$HOME/g")
-	includedir=$(echo "$includedir" | sed "s/~/$HOME/g")
+	prefix=$(echo "$prefix" | sed "s/~/$(echo $HOME | sed 's/\//\\\//g')/g")
+	exec_prefix=$(echo "$exec_prefix" | sed "s/~/$(echo $HOME | sed 's/\//\\\//g')/g")
+	bindir=$(echo "$bindir" | sed "s/~/$(echo $HOME | sed 's/\//\\\//g')/g")
+	libdir=$(echo "$libdir" | sed "s/~/$(echo $HOME | sed 's/\//\\\//g')/g")
+	includedir=$(echo "$includedir" | sed "s/~/$(echo $HOME | sed 's/\//\\\//g')/g")
 
 	echo "Checking install prefix...$prefix"
 	echo "Checking executable install prefix...$exec_prefix"
