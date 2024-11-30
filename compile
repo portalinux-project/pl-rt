@@ -128,7 +128,7 @@ compile_prog(){
 
 install_lib(){
 	printf "Installing library $libname..."
-	if [ ! -d "$includedir" ] || [ ! -d "$libdir"]; then
+	if [ ! -d "$includedir" ] || [ ! -d "$libdir" ]; then
 		mkdir -p "$includedir"
 		mkdir -p "$libdir"
 	fi
