@@ -60,19 +60,16 @@ plptr_t plRTGetDirents(char* path, plmt_t* mt){
 	};
 
 	while((directoryEntry = readdir(directory)) != NULL){
-		// Check to remove . and .. from directory listing
-		if(strcmp(directoryEntry->d_name, ".") != 0 && strcmp(directoryEntry->d_name, "..") != 0){
-			if(fileList.size > 1){
-				memptr_t tempPtr = plMTRealloc(mt, fileList.pointer, (fileList.size + 1) * sizeof(struct dirent));
-				if(tempPtr == NULL)
-					plRTPanic("plRTGetDirents", PLRT_FAILED_ALLOC, false);
+		if(fileList.size > 1){
+			memptr_t tempPtr = plMTRealloc(mt, fileList.pointer, (fileList.size + 1) * sizeof(struct dirent));
+			if(tempPtr == NULL)
+				plRTPanic("plRTGetDirents", PLRT_FAILED_ALLOC, false);
 
-				fileList.pointer = tempPtr;
-			}
-
-			((struct dirent*)fileList.pointer)[fileList.size] = *directoryEntry;
-			fileList.size++;
+			fileList.pointer = tempPtr;
 		}
+
+		((struct dirent*)fileList.pointer)[fileList.size] = *directoryEntry;
+		fileList.size++;
 	}
 
 	return fileList;
