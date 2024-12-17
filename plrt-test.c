@@ -291,6 +291,10 @@ int plMLTest(char* customFile, plmt_t* mt){
 	int i = 1;
 	while(plFGets(&lineBuffer, fileToParse) != 0){
 		plmltoken_t parsedToken = plMLParse(lineBuffer, mt);
+		if(parsedToken.type == PLML_TYPE_NULL){
+			lineBuffer.data.size = 4096;
+			continue;
+		}
 
 		printf("Token %d\n\n", i);
 		printf("Name: %s\n", (char*)parsedToken.name.data.pointer);
