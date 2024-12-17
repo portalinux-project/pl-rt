@@ -139,11 +139,13 @@ plptr_t plMLSanitize(plstring_t string, plmt_t* mt){
 
 	if(freeOffset != -1){
 		retStr.size = freeOffset;
-		memptr_t tempPtr = plMTRealloc(mt, retStr.pointer, retStr.size * sizeof(plstring_t));
-		if(tempPtr == NULL)
-			plRTPanic("plMLSanitize", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
+		if(retStr.size > 0){
+			memptr_t tempPtr = plMTRealloc(mt, retStr.pointer, retStr.size * sizeof(plstring_t));
+			if(tempPtr == NULL)
+				plRTPanic("plMLSanitize", PLRT_ERROR | PLRT_FAILED_ALLOC, false);
 
-		retStr.pointer = tempPtr;
+			retStr.pointer = tempPtr;
+		}
 	}
 
 	if(retStr.size > 1){
@@ -278,8 +280,8 @@ void plMLFreeToken(plmltoken_t token){
 }
 
 plstring_t plMLGenerateTokenStr(plmltoken_t token, plmt_t* mt){
-	if(token.name.data.pointer == NULL)
-		plRTPanic("plMLGenerateTokenStr", PLRT_ERROR || PLRT_NULL_PTR, true);
+	if(token.name.data.pointer == NULL || token.type == PLML_TYPE_NULL)
+		plRTPanic("plMLGenerateTokenStr", PLRT_ERROR | PLRT_NULL_PTR, true);
 
 	plstring_t retString = {
 		.data = {
