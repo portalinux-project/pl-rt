@@ -15,10 +15,10 @@
 #include <stddef.h>
 #endif
 
-#define PLRT_VERSION "1.04.2"
+#define PLRT_VERSION "1.04.3"
 #define PLRT_API_VER 1
 #define PLRT_FEATURELVL 4
-#define PLRT_PATCHLVL 2
+#define PLRT_PATCHLVL 3
 #define UINT_SHIFT_LIMIT 63
 
 typedef uint8_t byte_t;
