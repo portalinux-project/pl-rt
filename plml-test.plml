@@ -14,3 +14,4 @@ testAttrib12=["nano",'a']
 testAttrib13=[1234.0,12345.678]
 testAttrib14 = [ true, false, true, false ]
 testAttrib15 = "[ nano ]"
+pkgList = [ "linux", "binutils", "gcc", "gmp", "mpc", "mpfr", "toybox", "dash", "musl", "pl-rt",  "pl-srv", "pltermlib", "zlib" ]

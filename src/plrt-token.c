@@ -48,20 +48,17 @@ plstring_t plRTTokenize(plstring_t string, plstring_t* leftoverStr, plmt_t* mt){
 	if(string.data.size == 0)
 		return retStr;
 
-	if(*((char*)string.data.pointer) == '\n' && string.data.size == 1){
-		leftoverStr->data.pointer = NULL;
-		leftoverStr->data.size = 0;
-		return retStr;
-	}
-
 	memptr_t tempSearchLimit = string.data.pointer + string.data.size - 1;
 	while(string.data.pointer < tempSearchLimit && (*(char*)string.data.pointer == ' ' || *(char*)string.data.pointer == '\t' || *(char*)string.data.pointer == '\n')){
 		string.data.pointer++;
 		string.data.size--;
 	}
 
-	if(string.data.pointer == tempSearchLimit && (*(char*)string.data.pointer == ' ' || *(char*)string.data.pointer == '\t' || *(char*)string.data.pointer == '\n'))
+	if(string.data.pointer == tempSearchLimit && (*(char*)string.data.pointer == ' ' || *(char*)string.data.pointer == '\t' || *(char*)string.data.pointer == '\n')){
+		leftoverStr->data.pointer = NULL;
+		leftoverStr->data.size = 0;
 		return retStr;
+	}
 
 	int64_t delimOffsets[6] = { plRTStrchr(string, delimiters[0], 0), plRTStrchr(string, delimiters[1], 0), plRTStrchr(string, delimiters[2], 0), -1, plRTStrchr(string, delimiters[4], 0), plRTStrchr(string, delimiters[6], 0)};
 	int64_t quoteEndings[2] = { -1, -1 };
