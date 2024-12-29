@@ -1,5 +1,5 @@
 project('pl-rt', 'c',
-  version: '1.04',
+  version: '1.04.4',
   license: 'MPL-2.0',
   default_options: [
     'c_std=c11',
